@@ -1,0 +1,322 @@
+@font-face {
+    font-family: 'Helvetica Neue';
+    src: url(../fonts/Helvetica\ Neue\ 67\ Medium\ Condensed.otf);
+}
+@font-face {
+    font-family: 'SFNS';
+    src: url(../fonts/SFNS.ttf);
+}
+@font-face {
+    font-family: 'Code';
+    src: url(../fonts/CODE-B.otf);
+}
+@font-face {
+    font-family: 'Samosan';
+    src: url(../fonts/samosan.ttf);
+}
+
+
+body {
+    font-family: 'SF Pro Text';
+    font-weight: 800;
+    /* background-color: black; */
+    background: linear-gradient(106.78deg, #1B1F29 -0.64%, #221C2D 102.39%);
+    /* background: linear-gradient(106.78deg, #486ECE -0.64%, #956CD7 102.39%); */
+    background-size: 200%;
+}
+
+.head-container, .container-01, .container-02 {
+    width: 90%;
+    max-width: 1900px;
+}
+
+.head-container {
+    margin: 0 auto;
+    padding: 1px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #232323;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+.head-container h2 {
+    margin: 5px;
+}
+.head-container div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.head-container div p {
+    font-size: 24px;
+    margin: 0;
+}
+.head-container div img {
+    align-content: flex-end;
+    height: 40px;
+}
+
+.container-01 {
+    text-align: center;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.clock {
+    width: 800px;
+    font-family: 'Helvetica Neue';
+    font-size: 128px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url(https://images.unsplash.com/photo-1620646233562-f2a31ad24425?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80);
+    background-size: 50%;
+    backdrop-filter: blur(5px);
+}
+.clock h2 {
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+    color: #f2f2f2;
+}
+.date {
+    font-size: 48px;
+}
+.date p {
+    color: #232323;
+}
+.weather section {
+    display: flex;
+    flex-direction: row;
+    margin: 0 auto;
+}
+.weather section div {
+    padding: 20px;
+    text-align: left;
+    width: 50%;
+    align-items: center;
+    line-height: 22px;
+}
+.weather section div span {
+    font-size: 40px;
+    font-weight: 1000;
+}
+.weather section div p {
+    color: #64748B;
+}
+.weather section div p span {
+    font-size: 24px;
+    color: #363636;
+}
+
+.date, .weather {
+    width: 400px;
+}
+
+/* Тень блоков */
+.head-container, .clock, .date, .weather, .sys-info,
+.note-block, .quote-block {
+    box-shadow: 0px 4px 16px 3px rgba(0, 0, 0, 0.2);
+}
+
+.container-02 {
+    margin: 0 auto;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.sys-info {
+    color: #F2F2F2;
+    padding: 20px;
+    border-radius: 50px;
+    width: 700px;
+    background: linear-gradient(241.38deg, rgba(78, 50, 247, 0.86) 0%, #1D8BBC 100%);
+}
+.sys-info div {
+    display: flex;
+    flex-direction: row;
+}
+.sys-info hr {
+    height: 6px;
+    width: 30%;
+    margin-left: 10px;
+    background-color: rgb(223, 224, 226);
+    border-radius: 20px;
+    border: none;
+}
+.sys-info h2 {
+    font-size: 28px;
+    color: #dde0e2;
+}
+.sys-info h3 {
+    font-size: 36px;
+}
+.sys-info h2, .sys-info h3 {
+    margin: 10px;
+}
+
+.head-container, .container-01 div {
+    background-color: #F2F2F2;
+    border-radius: 50px;
+}
+.progress-bar-container {
+    margin: 10px;
+}
+  
+.progress-bar {
+    width: 100%;
+    height: 18px;
+    background-color: #dfdfdf;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #4CAF50;
+    transition: width 0.5s ease-in-out;
+}
+
+.progress-bar-label {
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+
+.note-block {
+    width: 450px;
+    height: 500px;
+    background-color: #F2F2F2;
+    border: 1px solid #d9d9d9;
+    border-radius: 50px;
+    padding: 20px;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: #333;
+    font-family: 'SF Pro Text';
+  }
+  
+  .note-block-title {
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .note-input input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d9d9d9;
+    border-radius: 20px;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .note-input button[type="submit"] {
+    background-color: #007aff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: block;
+    margin: 0 auto;
+  }
+  
+  .note-input button[type="submit"]:hover,
+  .quote-button:hover {
+    background-color: rgba(0, 98, 204, .5);
+  }
+  
+  .note-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .note-list li {
+    background-color: #fff;
+    border: 1px solid #d9d9d9;
+    border-radius: 20px;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+  }
+  
+  .quote-text {
+    transition: 0.5s ease-in-out; /* время: 0.5 секунды, тип анимации: ease-in-out */
+  }
+
+  .quote-text.animate {
+    animation: fade-in .7s ease;
+  }
+  
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  
+  .quote-block {
+    width: 400px;
+    height: 500px;
+    background-color: #f2f2f2;
+    border: 1px solid #d9d9d9;
+    border-radius: 50px;
+    padding: 20px;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .quote-block h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .quote-text {
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-family: 'SF Pro Display';
+    color: #232323;
+  }
+  
+  .quote-button {
+    text-align: center;
+    background-color: #007aff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: block;
+    margin: 0 auto;
+  }
+  
+button {
+    font-family: 'SF Pro Text';
+}
+
+.quote-author {
+    font-family: 'Century Gothic';
+    font-size: 24px;
+}

@@ -1,0 +1,13 @@
+@font-face {
+    font-family: 'Libra';
+    src: url();
+}
+
+body {
+    background: linear-gradient(106.78deg, #486ECE -0.64%, #956CD7 102.39%);
+}
+.head-container {
+    width: 90%;
+    display: flex;
+    flex-direction: row;
+}
