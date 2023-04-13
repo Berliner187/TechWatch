@@ -43,6 +43,7 @@ def get_weather(city):
         humidity = data_from_openweather['main']['humidity']
         rain_chance = data_from_openweather
         sunrise, sunset = get_sunrise_and_sunset_times(data_from_openweather)
+
         # Возвращаем данные о погоде в виде списка
         return [city, f'{temperature} °C', cloudiness, humidity, sunrise, sunset]
 
@@ -57,6 +58,7 @@ def get_weather(city):
             now - datetime.strptime(data["last_request"], "%Y-%m-%d %H:%M:%S.%f")).seconds < 300:
         # Используем уже имеющиеся данные
         weather_data = data["weather_data"]
+        weather_data.append(data["last_request"])
     else:
         # Получаем новые данные о погоде
         weather_data = get_weather_data()
@@ -65,4 +67,18 @@ def get_weather(city):
         data["weather_data"] = weather_data
         save_data(data)
 
+    def get_lucky_date():
+        last_request_time = datetime.strptime(data["last_request"], "%Y-%m-%d %H:%M:%S.%f")
+        print(last_request_time)
+
+        # Извлекаем число, месяц и время (часы, минуты, секунды)
+        day = last_request_time.day
+        month = last_request_time.strftime("%B")  # Получаем название месяца
+        hour = last_request_time.hour
+        minute = last_request_time.minute
+        second = last_request_time.second
+
+        return f"{day} {month}, in {hour:02d}:{minute:02d}:{second:02d}"
+
+    weather_data.append(get_lucky_date())
     return weather_data

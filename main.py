@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 import time
 from datetime import datetime
 import platform
@@ -18,9 +18,23 @@ import weather_forecast
 app = Flask(__name__)
 
 
+class SystemIndicators:
+    def cpu_info(self):
+        return
+
+    def discs_info(self):
+        return
+
+    def battery_info(self):
+        return
+
+    def memory_info(self):
+        return
+
+
 def greeting():
     hms = datetime.today()
-    time_now = hms.hour * 3600 + hms.minute * 60 + hms.second  # Время в секундах
+    time_now = hms.hour * 3600 + hms.minute * 60 + hms.second
     if 14400 <= time_now < 43200:
         return 'Good Morning'
     elif 43200 <= time_now < 61200:
@@ -31,11 +45,27 @@ def greeting():
         return 'Good Night'
 
 
+def get_time_left():
+    battery = psutil.sensors_battery()
+    print(battery.secsleft)
+    if battery.secsleft > 0:
+        time_left_sec = battery.secsleft
+        hours = time_left_sec // 3600
+        minutes = (time_left_sec % 3600) // 60
+        time_left_str = f'{hours} ч {minutes} мин.'
+        if battery.secsleft >= 4294967295:
+            return ''
+        else:
+            return time_left_str
+    else:
+        return ''
+
+
 @app.route('/')
 def index():
     global size_gb, free_gb, used_percent, occupied
 
-    city = 'Tver'
+    city = 'Тверь'
 
     now = datetime.now()
     date = now.strftime("%d/%m/%Y")
@@ -76,8 +106,10 @@ def index():
             battery_level = 2
         elif 40 < percent <= 70:
             battery_level = 3
-        elif 70 < percent <= 100:
+        elif 70 < percent <= 90:
             battery_level = 4
+        elif 90 < percent <= 100:
+            battery_level = 5
         else:
             battery_level = 0
 
@@ -104,7 +136,7 @@ def index():
         processor_info=platform.processor(),
         cpu_percent=cpu_percent, disk=disk, os_name=os_name,
         weather_info=weather_forecast.get_weather(city),
-        battery={"battery_level": battery_level, "percent": percent},
+        battery={"battery_level": battery_level, "percent": percent, "time_left": get_time_left()},
         disk_info=disk_info,
         hostname=hostname,
         memory=memory_indicators,
@@ -135,7 +167,6 @@ def disk_space():
 
         disks_array.append(hidden_data_dict)
         hidden_data_dict = {}
-
     return disks_array
 
 
@@ -149,9 +180,9 @@ def get_d_disk():
     return jsonify(disk_space()[1])
 
 
-@app.route('/cpu')
-def cpu():
-    cpu_percent = psutil.cpu_percent()
+@app.route('/cpu_percent')
+def get_cpu_percent():
+    cpu_percent = psutil.cpu_percent(interval=1, percpu=True)
     return jsonify(cpu_percent=cpu_percent)
 
 
@@ -170,13 +201,16 @@ def get_battery():
             battery_level = 2
         elif 40 < percent <= 70:
             battery_level = 3
-        elif 70 < percent <= 100:
+        elif 70 < percent <= 90:
             battery_level = 4
+        elif 90 < percent <= 100:
+            battery_level = 5
         else:
             battery_level = 0
     battery_info = {
         "battery_level": battery_level,
-        "percent": percent
+        "percent": percent,
+        "time_left": get_time_left()
     }
     return jsonify(battery_info)
 
@@ -194,6 +228,28 @@ def memory_usage():
         "memory_percent": memory_percent
     }
     return jsonify(memory_indicators_dict)
+
+
+notes = []
+
+
+@app.route('/add_note', methods=['POST'])
+def add_note():
+    note = request.form['note']  # Получение заметки из POST-запроса
+    notes.append(note)  # Добавление заметки в список
+    return jsonify({'result': 'success'})  # Возвращение JSON-ответа с результатом
+
+
+@app.route('/get_notes', methods=['GET'])
+def get_notes():
+    return jsonify({'notes': notes})  # Возвращение списка заметок в JSON-формате
+
+
+@app.route('/delete_note', methods=['POST'])
+def delete_note():
+    note = request.form['note']  # Получение значения заметки из POST-запроса
+    notes.remove(note)  # Удаление заметки из списка
+    return jsonify({'result': 'success'})
 
 
 @app.route('/quote')
