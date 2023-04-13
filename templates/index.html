@@ -11,7 +11,7 @@
 </head>
 <body>
 
-	<section class="head-container">
+	<header>
 		<div>
 			<p>{{ hostname }}</p>
 		</div>
@@ -19,10 +19,11 @@
 			<h2>{{ greeting }}</h2>
 		</div>
 		<div>
-			<p id="battery-level">{{ battery.percent }}%</p>
-			<img src="../static/img/battery-{{battery.battery_level}}.png" alt="">
+			<p id="battery-percent">{{ battery.percent }}%</p>
+			<img id="battery-level-img" src="../static/img/battery-{{battery.battery_level}}.png" alt="battery-icon">
+			<p id="battery_time_left">{{ battery.time_left }}</p>
 		</div>
-	</section>
+	</header>
 
 	<section class="container-01">
 
@@ -46,9 +47,10 @@
 					<p>Sunrise: <br>
 						<span>{{ weather_info[4] }}</span>
 					</p>
+					<p>Last update: <br>{{ weather_info[7] }}</p>
 				</div>
 				<div>
-					<img src="../static/img/{{weather_info[2][0]}}.gif" alt="">
+					<img src="../static/img/{{weather_info[2][0]}}.png" alt="">
 					<p>{{ weather_info[2][0] }}<br>
 						<span>{{ weather_info[2][1] }}</span>
 					</p>
@@ -58,7 +60,6 @@
 					<p>Sunset: <br>
 						<span>{{ weather_info[5] }}</span>
 					</p>
-					<!-- <p>{{ weather_info[3] }}</p> -->
 				</div>
 			</section>
 		</div>
@@ -70,20 +71,24 @@
 			<hr>
 			<h2>OS</h2>
 			<h3 id="os_info">{{ os_info  }}</h3>
-			<!-- <div class="info"> -->
-				<!-- <p><strong>CPU:</strong></p>
-				<ul id="cpu_percent">
-					{% for cpu in cpu_percent %}
-						<li>CPU {{ loop.index }}: {{ cpu }}%</li>
-					{% endfor %}
-				</ul> -->
-			<!-- </div> -->
+			<hr>
+			<h2>CPU</h2>
+			<ul id="cpu_percent" class="cpu_percent">
+				{% for cpu in cpu_percent %}
+					<li>CPU {{ loop.index }}: <span id="cpuPercent{{ loop.index }}">{{ cpu }}</span>%</li>
+					<div class="progress-bar-container">
+						<div class="progress-bar">
+							<div class="progress-bar-fill" id="cpuBar{{ loop.index }}"></div>
+						</div>
+					</div>
+				{% endfor %}
+			</ul>
 			<hr>
 			<h2>RAM</h2>
 			<div>
 				<h3 id="memory_usage">{{ memory.memory_usage }}</h3>
 				<h3 id="total_memory">{{ memory.total_memory }}</h3>
-				<h3 id="memory_percent">{{ memory.memory_percent }}%))</h3>
+				<h3 id="memory_percent">{{ memory.memory_percent }}</h3>
 			</div>
 			<div class="progress-bar-container">
 				<div class="progress-bar">
@@ -92,33 +97,32 @@
 			</div>
 			  
 			<hr>
+			<!-- Информация о дисках -->
 			<h2>ROM</h2>
 			{% for i in range(disk_info | length) %}
 				<h3>{{ disk_info[i] }}</h3>
 			{% endfor %}
 			<div class="progress-bar-container">
 				<div class="progress-bar">
-				  <div class="progress-bar-fill" id="diskCBar"></div>
+				  	<div class="progress-bar-fill" id="diskCBar"></div>
 				</div>
 				<div class="progress-bar-label" id="diskCLabel"></div>
 			</div>
 			  
 			<div class="progress-bar-container">
 				<div class="progress-bar">
-				  <div class="progress-bar-fill" id="diskDBar"></div>
+				  	<div class="progress-bar-fill" id="diskDBar"></div>
 				</div>
 				<div class="progress-bar-label" id="diskDLabel"></div>
 			</div>
 		</div>
 
 		<div class="note-block">
-			<h2 class="note-block-title">Notes</h2>
-			<ul class="note-list">
-			  <li>Some note</li>
-			</ul>
-			<form class="note-input">
-			  <input type="text" placeholder="Введите заметку">
-			  <button type="submit">Add Note</button>
+			<h2 class="note-block-title">Tasks</h2>
+			<ul class="notes-list" id="notesList"></ul>
+			<form id="addNoteForm">
+				<input type="text" id="noteInput" placeholder="Place for task...">
+				<input type="submit" value="Add Task" id="addNoteButton">
 			</form>
 		</div>
 		
@@ -128,201 +132,257 @@
 				<h3 class="quote-text"></h3>
 				<p class="quote-author"></p>
 			</div>
-			<button class="quote-button" id="get-quote-btn">Следующая</button>
+			<button class="quote-button" id="get-quote-btn">The following quote</button>
 		</div>
 		  
 	</section>
 
-	<script>
-		const quoteBlock = document.querySelector('.quote-block');
-		const quoteText = document.querySelector('.quote-text');
-		const quoteAuthor = document.querySelector('.quote-author');
+</body>
 
-		// Функция для получения случайной цитаты
-		function getQuote() {
-		// Отправляем GET-запрос на API Flask
-		fetch('/quote')
-			.then(response => response.json())
-			.then(data => {
-				quoteText.textContent = data.text;
-				quoteAuthor.textContent = '— ' + data.author;
+<script>
+	// Функция для обновления списка заметок на фронте
+	function updateNotesList() {
+		$.get('/get_notes', function(data) {
+			var notes = data.notes;
+			var notesList = $('#notesList');
+			notesList.empty();  // Очистка списка заметок
+			for (var i = 0; i < notes.length; i++) {
+				var noteItem = '<li class="noteItem">' + notes[i] + '</li>';  // Создание элемента заметки
+				var deleteNoteButton = '<button class="deleteNoteButton" data-note="' + notes[i] + '"></button>';  // Создание кнопки удаления заметки
+				notesList.append(noteItem + deleteNoteButton);  // Добавление заметки и кнопки в список
+			}
+		});
+	}
+	// Обработка события отправки формы
+	$('#addNoteForm').on('submit', function(event) {
+		event.preventDefault();  // Отмена стандартного поведения формы
+		var note = $('#noteInput').val();  // Получение значения заметки из поля ввода
+		$.post('/add_note', {note: note}, function(data) {
+			updateNotesList();  // Вызов функции обновления списка заметок на фронтенде
+			$('#noteInput').val('');  // Очистка поля ввода
+		});
+	});
+	// Обработка события клика на кнопке удаления заметки
+	$(document).on('click', '.deleteNoteButton', function() {
+		var note = $(this).data('note');  // Получение значения заметки из атрибута data-note кнопки удаления
+		$.post('/delete_note', {note: note}, function(data) {
+			updateNotesList();  // Вызов функции обновления списка заметок на фронтенде
+		});
+	});
+
+	// Вызов функции обновления списка заметок при загрузке страницы
+	$(document).ready(function() {
+		updateNotesList();
+	});
+</script>
+
+<script>
+	const quoteBlock = document.querySelector('.quote-block');
+	const quoteText = document.querySelector('.quote-text');
+	const quoteAuthor = document.querySelector('.quote-author');
+
+	// Функция для получения случайной цитаты
+	function getQuote() {
+	// Отправляем GET-запрос на API Flask
+	fetch('/quote')
+		.then(response => response.json())
+		.then(data => {
+			quoteText.textContent = data.text;
+			quoteAuthor.textContent = '— ' + data.author;
+		})
+		.catch(error => {
+		console.error(error);
+		});
+	}
+	
+	const getQuoteBtn = document.querySelector('#get-quote-btn');
+
+	getQuoteBtn.addEventListener('click', () => {
+	fetch('/quote') // обращаемся к Flask-маршруту, который возвращает случайную цитату
+		.then(response => response.json())
+		.then(data => {
+			quoteText.textContent = data.text;
+			quoteAuthor.textContent = '— ' + data.author;
+			quoteText.classList.add('animate'); // добавляем класс animate для анимации
+			setTimeout(() => {
+				quoteText.classList.remove('animate'); // убираем класс animate через 1 секунду
+			}, 1000);
 			})
 			.catch(error => {
 			console.error(error);
 			});
-		}
-		
-		const getQuoteBtn = document.querySelector('#get-quote-btn');
+	});
 
-		getQuoteBtn.addEventListener('click', () => {
-		fetch('/quote') // обращаемся к Flask-маршруту, который возвращает случайную цитату
-			.then(response => response.json())
-			.then(data => {
-				quoteText.textContent = data.text;
-				quoteAuthor.textContent = '— ' + data.author;
-				quoteText.classList.add('animate'); // добавляем класс animate для анимации
-				setTimeout(() => {
-					quoteText.classList.remove('animate'); // убираем класс animate через 1 секунду
-				}, 1000);
-				})
-				.catch(error => {
-				console.error(error);
-				});
+	getQuote();
+
+</script>
+
+<script>
+	const memoryBar = document.getElementById("memoryBar");
+	const memoryLabel = document.getElementById("memoryLabel");
+	const diskCBar = document.getElementById("diskCBar");
+	const diskCLabel = document.getElementById("diskCLabel");
+	const diskDBar = document.getElementById("diskDBar");
+	const diskDLabel = document.getElementById("diskDLabel");
+
+	function paintProgreessBar(bar, percentUsed) {
+		if (percentUsed < 10) {
+				bar.style.backgroundColor = "#6BC1FF";
+			} else if (percentUsed >= 10 && percentUsed < 20) {
+				bar.style.backgroundColor = "#6BFFE3";
+			} else if (percentUsed >= 20 && percentUsed < 30) {
+				bar.style.backgroundColor = "#6BFF9C";
+			} else if (percentUsed >= 30 && percentUsed < 40) {
+				bar.style.backgroundColor = "#7EFF6B";
+			} else if (percentUsed >= 40 && percentUsed < 50) {
+				bar.style.backgroundColor = "#D1FF6B";
+			} else if (percentUsed >= 50 && percentUsed < 60) {
+				bar.style.backgroundColor = "#FFF86B";
+			} else if (percentUsed >= 60 && percentUsed < 70) {
+				bar.style.backgroundColor = "#FFE36B";
+			} else if (percentUsed >= 70 && percentUsed < 80) {
+				bar.style.backgroundColor = "#FFC46B";
+			} else if (percentUsed >= 80 && percentUsed < 90) {
+				bar.style.backgroundColor = "#FFA06E";
+			} else {
+				bar.style.backgroundColor = "#FF6E6E";
+			}
+	}
+
+	function updateMemoryProgressBar() {
+		fetch('/memory-usage') // делаем GET запрос на сервер для получения данных об оперативной памяти
+		.then(response => response.json())
+		.then(data => {
+			const totalMemory = data.total_memory;
+			const usedMemory = data.memory_usage;
+			const percentUsedMemory = data.memory_percent;
+			memoryBar.style.width = percentUsedMemory + "%";
+			paintProgreessBar(memoryBar, percentUsedMemory);
 		});
+	}
 
-		// Получаем первую цитату при загрузке страницы
-		getQuote();
+	function updateDiskCProgressBar() {
+		fetch('/disk-c') // делаем GET запрос на сервер для получения данных о диске C
+		.then(response => response.json())
+		.then(data => {
+		const totalSpace = data.total_size;
+		const freeSpace = data.free_size;
+		const percentageFree = 100 - Math.round((freeSpace / totalSpace) * 100);
+		diskCBar.style.width = percentageFree + "%";
+		// diskCLabel.textContent = `${percentageFree}% occupied`;
+		paintProgreessBar(diskCBar, percentageFree);
 
-	</script>
+	});
+	}
+
+	function updateDiskDProgressBar() {
+		fetch('/disk-d') // делаем GET запрос на сервер для получения данных о диске D
+		.then(response => response.json())
+		.then(data => {
+		const totalSpace = data.total_size;
+		const freeSpace = data.free_size;
+		const percentageFree = 100 - Math.round((freeSpace / totalSpace) * 100);
+		diskDBar.style.width = percentageFree + "%";
+		paintProgreessBar(diskDBar, percentageFree);
+	});
+	}
+
+	function updateCpuPercent() {
+		fetch('/cpu_percent')
+		.then(response => response.json())
+		.then(data => {
+			// Обновление значений процентного использования CPU и ширины прогресс-баров
+			for (let i = 0; i < data.cpu_percent.length; i++) {
+				document.getElementById('cpuPercent' + (i + 1)).textContent = data.cpu_percent[i];
+				document.getElementById('cpuBar' + (i + 1)).style.width = data.cpu_percent[i] + '%';
+				paintProgreessBar(document.getElementById('cpuBar' + (i + 1)), data.cpu_percent[i]);
+			}
+		})
+		.catch(error => console.error('Ошибка при получении значений процентного использования CPU:', error));
+	}
+
+	updateMemoryProgressBar();
+	updateDiskCProgressBar();
+	updateDiskDProgressBar();
+	updateCpuPercent();
 	
-	<script>
-		const memoryBar = document.getElementById("memoryBar");
-		const memoryLabel = document.getElementById("memoryLabel");
-		const diskCBar = document.getElementById("diskCBar");
-		const diskCLabel = document.getElementById("diskCLabel");
-		const diskDBar = document.getElementById("diskDBar");
-		const diskDLabel = document.getElementById("diskDLabel");
+	setInterval(updateMemoryProgressBar, 1000);
+	setInterval(updateDiskCProgressBar, 1000);
+	setInterval(updateDiskDProgressBar, 1000);
 
-		function paintProgreessBar(bar, percentUsed) {
-			if (percentUsed < 10) {
-					bar.style.backgroundColor = "#6BC1FF";
-				} else if (percentUsed >= 10 && percentUsed < 20) {
-					bar.style.backgroundColor = "#6BFFE3";
-				} else if (percentUsed >= 20 && percentUsed < 30) {
-					bar.style.backgroundColor = "#6BFF9C";
-				} else if (percentUsed >= 30 && percentUsed < 40) {
-					bar.style.backgroundColor = "#7EFF6B";
-				} else if (percentUsed >= 40 && percentUsed < 50) {
-					bar.style.backgroundColor = "#D1FF6B";
-				} else if (percentUsed >= 50 && percentUsed < 60) {
-					bar.style.backgroundColor = "#FFF86B";
-				} else if (percentUsed >= 60 && percentUsed < 70) {
-					bar.style.backgroundColor = "#FFE36B";
-				} else if (percentUsed >= 70 && percentUsed < 80) {
-					bar.style.backgroundColor = "#FFC46B";
-				} else if (percentUsed >= 80 && percentUsed < 90) {
-					bar.style.backgroundColor = "#FFA06E";
-				} else {
-					bar.style.backgroundColor = "#FF6E6E";
-				}
-		}
+	setInterval(updateCpuPercent, 600);
+</script>
 
-		function updateMemoryProgressBar() {
-			fetch('/memory-usage') // делаем GET запрос на сервер для получения данных об оперативной памяти
-			.then(response => response.json())
+<script>
+	function getMemSpace() {
+		return fetch('/memory-usage')
+			.then(response => {
+			if (!response.ok) {
+				throw new Error("Failed to fetch disk space");
+			}
+			return response.json();
+			})
 			.then(data => {
-				const totalMemory = data.total_memory;
-				const usedMemory = data.memory_usage;
-				const percentUsedMemory = data.memory_percent;
-				memoryBar.style.width = percentUsedMemory + "%";
-				paintProgreessBar(memoryBar, percentUsedMemory);
-			});
-		}
+			// Обновляем progress bar с полученными данными
+			const { total_memory, memory_usage } = data;
+			})
+			.catch(error => console.error(error));
+	}
 
-		function updateDiskCProgressBar() {
-			fetch('/disk-c') // делаем GET запрос на сервер для получения данных о диске C
-			.then(response => response.json())
-			.then(data => {
-			const totalSpace = data.total_size;
-			const freeSpace = data.free_size;
-			const percentageFree = 100 - Math.round((freeSpace / totalSpace) * 100);
-			diskCBar.style.width = percentageFree + "%";
-			// diskCLabel.textContent = `${percentageFree}% occupied`;
-			paintProgreessBar(diskCBar, percentageFree);
+	getMemSpace();
 
+	setInterval(getMemSpace, 2000);
+</script>
+
+<script>
+	function updateBatteryLevel() {
+		fetch('/battery')
+		.then(response => response.json())
+		.then(data => {
+			document.getElementById('battery-percent').textContent = `${data.percent}%`;
+			// Смена иконки батареи
+			let imgElem = document.getElementById('battery-level-img');
+			imgElem.src = 'static/img/battery-' + data.battery_level + '.png';
+
+			document.getElementById('battery_time_left').textContent = data.time_left;
 		});
-		}
+	}
 
-		function updateDiskDProgressBar() {
-			fetch('/disk-d') // делаем GET запрос на сервер для получения данных о диске D
-			.then(response => response.json())
-			.then(data => {
-			const totalSpace = data.total_size;
-			const freeSpace = data.free_size;
-			const percentageFree = 100 - Math.round((freeSpace / totalSpace) * 100);
-			diskDBar.style.width = percentageFree + "%";
-			paintProgreessBar(diskDBar, percentageFree);
-
+	function updateMemoryUsage() {
+		$.ajax({
+			url: '/memory-usage',
+			type: 'GET',
+			dataType: 'json',
+			success: function(response) {
+				$('#memory_usage').text(response.memory_usage + ' GB');
+				$('#total_memory').text('/ ' + response.total_memory + ' GB');
+				$('#memory_percent').text('(' + response.memory_percent + '%)');
+			},
+			complete: function() {
+				// Вызов функции снова через 1 секунду
+				setTimeout(updateMemoryUsage, 1000);
+			}
 		});
-		}
+	}
 
-		updateMemoryProgressBar();
-		updateDiskCProgressBar();
-		updateDiskDProgressBar();
-		
-		setInterval(updateMemoryProgressBar, 1000);
-		setInterval(updateDiskCProgressBar, 1000);
-		setInterval(updateDiskDProgressBar, 1000);
-	</script>
+	// Вызов функции первый раз
+	$(document).ready(function() {
+		updateMemoryUsage();
+	});
 
-	<script>
-		function getMemSpace() {
-			return fetch('/memory-usage')
-				.then(response => {
-				if (!response.ok) {
-					throw new Error("Failed to fetch disk space");
-				}
-				return response.json();
-				})
-				.then(data => {
-				// Обновляем progress bar с полученными данными
-				const { total_memory, memory_usage } = data;
-				})
-				.catch(error => console.error(error));
-		}
+	setInterval(updateBatteryLevel, 3000);
+</script>
 
-		getMemSpace();
+<script>
+	function updateClock() {
+	const now = new Date();
+	const hours = now.getHours().toString().padStart(2, '0');
+	const minutes = now.getMinutes().toString().padStart(2, '0');
+	const timeString = `${hours}:${minutes}`;
+	const clock = document.getElementById("clock");
+	clock.innerHTML = timeString;
+	}
 
-		setInterval(getMemSpace, 2000);
-
-	</script>
-
-	<script>
-		function updateBatteryLevel() {
-			fetch('/battery')
-			.then(response => response.json())
-			.then(data => {
-				document.getElementById('battery-level').textContent = `${data.percent}%`;
-			});
-		}
-
-		function updateMemoryUsage() {
-			$.ajax({
-				url: '/memory-usage',
-				type: 'GET',
-				dataType: 'json',
-				success: function(response) {
-					$('#memory_usage').text(response.memory_usage + ' GB');
-					$('#total_memory').text('/ ' + response.total_memory + ' GB');
-            		$('#memory_percent').text('(' + response.memory_percent + '%)');
-				},
-				complete: function() {
-					// Вызов функции снова через 1 секунду
-					setTimeout(updateMemoryUsage, 1000);
-				}
-			});
-		}
-
-		// Вызов функции первый раз
-		$(document).ready(function() {
-			updateMemoryUsage();
-		});
-
-		setInterval(updateBatteryLevel, 3000);
-	</script>
-
-	<script>
-		function updateClock() {
-		const now = new Date();
-		const hours = now.getHours().toString().padStart(2, '0');
-		const minutes = now.getMinutes().toString().padStart(2, '0');
-		const timeString = `${hours}:${minutes}`;
-		const clock = document.getElementById("clock");
-		clock.innerHTML = timeString;
-		}
-
-		setInterval(updateClock, 1000);
-	</script>
-
-</body>
+	setInterval(updateClock, 1000);
+</script>
 </html>
