@@ -32,9 +32,9 @@ TechWatch - полезный веб-сервис для отслеживания
 
 ## Технологии
 TechWatch использует следующие технологии:
-> [Flask](https://flask.palletsprojects.com/en/2.2.x/): микрофреймворк для создания веб-приложений на языке Python.
-> AJAX-запросы при помощи [jQuery](https://flask.palletsprojects.com/en/2.0.x/patterns/jquery/) для динамического обновления контента на странице.
-> [OpenWeatherMap API](https://openweathermap.org/api): сервис для получения прогноза погоды.
+- [Flask](https://flask.palletsprojects.com/en/2.2.x/): микрофреймворк для создания веб-приложений на языке Python.
+- AJAX-запросы при помощи [jQuery](https://flask.palletsprojects.com/en/2.0.x/patterns/jquery/) для динамического обновления контента на странице.
+- [OpenWeatherMap API](https://openweathermap.org/api): сервис для получения прогноза погоды.
 
 
 ## Контакты
