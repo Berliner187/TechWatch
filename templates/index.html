@@ -27,12 +27,12 @@
 
 	<section class="container-01">
 
-		<div class="date">
+		<div class="date-block">
 			<h2>{{ date.day_week }}</h2>
 			<p>{{ date.date }}</p>
 		</div>
 
-		<div class="clock">
+		<div class="clock-block">
 			<h2 id="clock">{{ time }}</h2>
 		</div>
 
@@ -68,6 +68,7 @@
 
 	<section class="container-02">
 		<div class="sys-info">
+			<!-- Операционная система -->
 			<hr>
 			<h2>OS</h2>
 			<h3 id="os_info">{{ os_info  }}</h3>
@@ -83,6 +84,7 @@
 					</div>
 				{% endfor %}
 			</ul>
+			<!-- Оперативная память -->
 			<hr>
 			<h2>RAM</h2>
 			<div>
@@ -95,9 +97,8 @@
 				  <div class="progress-bar-fill" id="memoryBar"></div>
 				</div>
 			</div>
-			  
 			<hr>
-			<!-- Информация о дисках -->
+			<!-- Постоянная память -->
 			<h2>ROM</h2>
 			{% for i in range(disk_info | length) %}
 				<h3>{{ disk_info[i] }}</h3>
@@ -108,7 +109,6 @@
 				</div>
 				<div class="progress-bar-label" id="diskCLabel"></div>
 			</div>
-			  
 			<div class="progress-bar-container">
 				<div class="progress-bar">
 				  	<div class="progress-bar-fill" id="diskDBar"></div>
@@ -250,7 +250,7 @@
 	}
 
 	function updateMemoryProgressBar() {
-		fetch('/memory-usage') // делаем GET запрос на сервер для получения данных об оперативной памяти
+		fetch('/memory-usage')
 		.then(response => response.json())
 		.then(data => {
 			const totalMemory = data.total_memory;
@@ -262,29 +262,27 @@
 	}
 
 	function updateDiskCProgressBar() {
-		fetch('/disk-c') // делаем GET запрос на сервер для получения данных о диске C
+		fetch('/disk-c')
 		.then(response => response.json())
 		.then(data => {
-		const totalSpace = data.total_size;
-		const freeSpace = data.free_size;
-		const percentageFree = 100 - Math.round((freeSpace / totalSpace) * 100);
-		diskCBar.style.width = percentageFree + "%";
-		// diskCLabel.textContent = `${percentageFree}% occupied`;
-		paintProgreessBar(diskCBar, percentageFree);
-
-	});
+			const totalSpace = data.total_size;
+			const freeSpace = data.free_size;
+			const percentageFree = 100 - Math.round((freeSpace / totalSpace) * 100);
+			diskCBar.style.width = percentageFree + "%";
+			paintProgreessBar(diskCBar, percentageFree);
+		});
 	}
 
 	function updateDiskDProgressBar() {
-		fetch('/disk-d') // делаем GET запрос на сервер для получения данных о диске D
+		fetch('/disk-d')
 		.then(response => response.json())
 		.then(data => {
-		const totalSpace = data.total_size;
-		const freeSpace = data.free_size;
-		const percentageFree = 100 - Math.round((freeSpace / totalSpace) * 100);
-		diskDBar.style.width = percentageFree + "%";
-		paintProgreessBar(diskDBar, percentageFree);
-	});
+			const totalSpace = data.total_size;
+			const freeSpace = data.free_size;
+			const percentageFree = 100 - Math.round((freeSpace / totalSpace) * 100);
+			diskDBar.style.width = percentageFree + "%";
+			paintProgreessBar(diskDBar, percentageFree);
+		});
 	}
 
 	function updateCpuPercent() {

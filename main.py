@@ -8,7 +8,6 @@ import socket
 import random
 
 import psutil
-import requests
 import json
 
 import quotes_obs
@@ -16,6 +15,9 @@ import weather_forecast
 
 
 app = Flask(__name__)
+
+
+notes = []
 
 
 class SystemIndicators:
@@ -61,11 +63,46 @@ def get_time_left():
         return ''
 
 
+def get_memory_info():
+    memory = psutil.virtual_memory()
+    memory_use = round(memory.used / 1024 / 1024 / 1024, 2)
+    memory_total = round(memory.total / (1024 ** 3), 2)
+    memory_percent = memory.percent
+
+    memory_indicators_dict = {
+        "total_memory": memory_total,
+        "memory_usage": memory_use,
+        "memory_percent": memory_percent
+    }
+
+    return memory_indicators_dict
+
+
+def get_disks_info():
+    size_gb, free_gb, used_percent, occupied = 0, 0, 0, 0
+    disk_partitions = psutil.disk_partitions()
+
+    disk_info = []
+    for partition in disk_partitions:
+        usage = psutil.disk_usage(partition.mountpoint)
+        size_gb = usage.total / (1024 ** 3)
+        free_gb = usage.free / (1024 ** 3)
+        occupied = size_gb - free_gb
+        used_percent = usage.percent
+        disk_info.append(f"{partition.device} {size_gb - free_gb:.2f} GB/{size_gb:.2f} GB ({used_percent}%)")
+
+    disks_indicators = {
+        "total_size": size_gb, "free_size": free_gb,
+        "used_percent": used_percent, "occupied": occupied,
+        "disk_info": disk_info
+    }
+
+    return disks_indicators
+
+
 @app.route('/')
 def index():
-    global size_gb, free_gb, used_percent, occupied
-
-    city = 'Тверь'
+    city = 'Moscow'
 
     now = datetime.now()
     date = now.strftime("%d/%m/%Y")
@@ -73,29 +110,17 @@ def index():
 
     # Системная информация
     os_info = f"{platform.system()} {platform.release()}"
+    os_name = f"{psutil.Process().name()} ({psutil.Process().pid})"
+
     cpu_percent = psutil.cpu_percent(percpu=True)
 
-    mem = psutil.virtual_memory()
-    mem_usage = mem.used / 1024 / 1024 / 1024
-    total_memory = mem.total / (1024 ** 3)
-    memory_percent = mem.percent
-
-    memory_indicators = {
-        "total_memory": total_memory,
-        "memory_usage": mem_usage,
-        "memory_percent": memory_percent
-    }
-
-    disk = psutil.disk_usage('/')
-    os_name = f"{psutil.Process().name()} ({psutil.Process().pid})"
+    # Hostname
+    hostname = socket.gethostname()
 
     # Аккумулятор
     battery = psutil.sensors_battery()
     plugged = battery.power_plugged
     percent = battery.percent
-
-    # Hostname
-    hostname = socket.gethostname()
 
     if plugged:
         battery_level = 'charge'
@@ -113,39 +138,36 @@ def index():
         else:
             battery_level = 0
 
-    disk_partitions = psutil.disk_partitions()
-    disk_info = []
-    for partition in disk_partitions:
-        usage = psutil.disk_usage(partition.mountpoint)
-        size_gb = usage.total / (1024 ** 3)
-        free_gb = usage.free / (1024 ** 3)
-        occupied = size_gb - free_gb
-        used_percent = usage.percent
-        disk_info.append(f"{partition.device} {size_gb - free_gb:.2f} GB/{size_gb:.2f} GB ({used_percent}%)")
+    # Дата и день недели
+    date_indicators = {
+        "date": date, "day_week": day_week
+    }
 
-    disks_indicators = {
-        "total_size": size_gb, "free_size": free_gb,
-        "used_percent": used_percent, "occupied": occupied}
+    battery_indicators = {
+        "battery_level": battery_level, "percent": percent, "time_left": get_time_left()
+    }
+
+    print(get_disks_info()["disk_info"])
 
     return render_template(
         'index.html',
         greeting=greeting(),
         time=now.strftime("%H:%M"),
-        date={"date": date, "day_week": day_week},
+        date=date_indicators,
         os_info=os_info,
         processor_info=platform.processor(),
-        cpu_percent=cpu_percent, disk=disk, os_name=os_name,
+        cpu_percent=cpu_percent,
+        os_name=os_name,
         weather_info=weather_forecast.get_weather(city),
-        battery={"battery_level": battery_level, "percent": percent, "time_left": get_time_left()},
-        disk_info=disk_info,
+        battery=battery_indicators,
+        disk_info=get_disks_info()["disk_info"],
         hostname=hostname,
-        memory=memory_indicators,
-        disks_indicators=disks_indicators
+        memory=get_memory_info()
     )
 
 
 def disk_space():
-    # Disks
+    # Диски
     disk_partitions = psutil.disk_partitions()
     disks = []
     for partition in disk_partitions:
@@ -156,7 +178,6 @@ def disk_space():
         used_percent = usage.percent
         disks.append([size_gb, free_gb, occupied, used_percent])
 
-    # Данные внутри контейнера с облигацией (при раскрытии)
     disks_array = []
     hidden_data_dict = {}
     for i, disk_data in enumerate(disks):
@@ -217,45 +238,31 @@ def get_battery():
 
 @app.route('/memory-usage')
 def memory_usage():
-    memory = psutil.virtual_memory()
-    memory_use = round(memory.used / 1024 / 1024 / 1024, 2)
-    memory_total = round(memory.total / (1024 ** 3), 2)
-    memory_percent = memory.percent
-
-    memory_indicators_dict = {
-        "total_memory": memory_total,
-        "memory_usage": memory_use,
-        "memory_percent": memory_percent
-    }
-    return jsonify(memory_indicators_dict)
-
-
-notes = []
+    return jsonify(get_memory_info())
 
 
 @app.route('/add_note', methods=['POST'])
 def add_note():
-    note = request.form['note']  # Получение заметки из POST-запроса
-    notes.append(note)  # Добавление заметки в список
-    return jsonify({'result': 'success'})  # Возвращение JSON-ответа с результатом
+    note = request.form['note']
+    notes.append(note)
+    return jsonify({'result': 'success'})
 
 
 @app.route('/get_notes', methods=['GET'])
 def get_notes():
-    return jsonify({'notes': notes})  # Возвращение списка заметок в JSON-формате
+    return jsonify({'notes': notes})
 
 
 @app.route('/delete_note', methods=['POST'])
 def delete_note():
-    note = request.form['note']  # Получение значения заметки из POST-запроса
-    notes.remove(note)  # Удаление заметки из списка
+    note = request.form['note']
+    notes.remove(note)
     return jsonify({'result': 'success'})
 
 
 @app.route('/quote')
 def quote():
     quotes = quotes_obs.quotes
-
     random_quote = random.choice(quotes)
     return jsonify(random_quote)
 
