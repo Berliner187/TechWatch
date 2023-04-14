@@ -14,7 +14,7 @@ TechWatch - полезный веб-сервис для отслеживания
 - Список задач: TechWatch позволяет вам вести список задач, которые нужно выполнить, и отмечать их как выполненные, чтобы оставаться организованным и эффективным.
 
 ## Работа программы
-![Скрин 1](https://github.com/Berliner187/TechWatch/blob/main/static/img/tw-screen-1.png){width="300px" height="300px"}
+<img src="[path/to/screenshot.png](https://github.com/Berliner187/TechWatch/blob/main/static/img/tw-screen-1.png)" width="500">
 
 ## Установка и запуск
 
