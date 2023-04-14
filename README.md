@@ -1,7 +1,7 @@
 ![Баннер](https://github.com/Berliner187/TechWatch/blob/main/static/img/banner.png)
 TechWatch - полезный веб-сервис для отслеживания системных ресурсов, погоды, цитат и задач. Он позволяет получать информацию о загрузке процессора, использовании памяти и диска в режиме реального времени, а также прогноз погоды для заданного города. В TechWatch также есть возможность получать мотивирующие цитаты и вести список задач, что позволяет сохранять концентрацию на работе.
 
-![Лого](https://github.com/Berliner187/TechWatch/blob/main/static/img/tw.png)
+![Баннер Features](https://github.com/Berliner187/TechWatch/blob/main/static/img/banner-features.png)
 
 ## Особенности
 
