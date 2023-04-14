@@ -15,6 +15,7 @@ TechWatch - полезный веб-сервис для отслеживания
 
 ## Работа программы
 ![Скрин 1](https://github.com/Berliner187/TechWatch/blob/main/static/img/tw-screen-1.png)
+![Скрин 2](https://github.com/Berliner187/TechWatch/blob/main/static/img/tw-screen-2.png)
 
 ## Установка и запуск
 
