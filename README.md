@@ -26,18 +26,15 @@ TechWatch - полезный веб-сервис для отслеживания
     `pip install -r requirements.txt`
 
 3. Запуск приложения:
-   python3 main.py
+   `python3 main.py`
 
 4. Открыть веб-браузер и перейти по адресу http://127.0.0.1:5000, чтобы открыть приложение TechWatch.
 
 ## Технологии
 TechWatch использует следующие технологии:
-
-[Flask](https://flask.palletsprojects.com/en/2.2.x/): микрофреймворк для создания веб-приложений на языке Python.
-
-AJAX-запросы при помощи [jQuery](https://flask.palletsprojects.com/en/2.0.x/patterns/jquery/) для динамического обновления контента на странице.
-
-[OpenWeatherMap API](https://openweathermap.org/api): сервис для получения прогноза погоды.
+> [Flask](https://flask.palletsprojects.com/en/2.2.x/): микрофреймворк для создания веб-приложений на языке Python.
+> AJAX-запросы при помощи [jQuery](https://flask.palletsprojects.com/en/2.0.x/patterns/jquery/) для динамического обновления контента на странице.
+> [OpenWeatherMap API](https://openweathermap.org/api): сервис для получения прогноза погоды.
 
 
 ## Контакты
@@ -46,5 +43,3 @@ AJAX-запросы при помощи [jQuery](https://flask.palletsprojects.c
 - Email: kozak187er@ya.ru
 - Сайт: https://berliner187.github.io
 - GitHub: https://github.com/Berliner187/TechWatch
-
-Мы всегда рады услышать от вас и готовы помочь с любыми вопросами или проблемами, связанными с TechWatch.
