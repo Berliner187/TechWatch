@@ -14,12 +14,14 @@
     font-family: 'Samosan';
     src: url(../fonts/samosan.ttf);
 }
+@font-face {
+    font-family: 'SF Pro Medium';
+    src: url(../fonts/SFPRODISPLAYMEDIUM.OTF);
+}
 
 
 body {
-    font-family: 'SF Pro Text';
-    font-weight: 800;
-    /* background-color: black; */
+    font-family: 'SF Pro Medium';
     background: linear-gradient(106.78deg, #A5B1D1 -0.64%, #BBA6DD 102.39%);
     /* background: linear-gradient(106.78deg, #486ECE -0.64%, #956CD7 102.39%); */
     background-size: 200%;
@@ -33,7 +35,7 @@ footer {
 }
 
 header, .clock-block, .weather, .sys-info,
-.note-block, .quote-block {
+.note-block, .quote-block, footer {
     background-color: #151515;
     color: #f2f2f2;
 }
@@ -87,8 +89,6 @@ header div img {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-size: 50%;
-    backdrop-filter: blur(5px);
 }
 .clock-block h2 {
     margin: 0;
@@ -171,9 +171,17 @@ header, .clock-block, .date-block, .weather, .sys-info,
 }
 
 .cpu_percent {
-    list-style: circle;
     font-family: 'SF Pro Display';
     font-weight: 100;
+}
+.cpu_percent div {
+    align-items: center;
+}
+.cpu_percent div span {
+    text-align: right;
+    width: 60px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 header, .container-01 div {
@@ -183,10 +191,13 @@ header, .container-01 div {
 .progress-bar-container {
     margin: 10px;
 }
-  
+ 
+.cpu-progress {
+    max-width: 500px;
+}
 .progress-bar {
     width: 100%;
-    height: 15px;
+    height: 10px;
     background-color: #dfdfdf;
     border-radius: 20px;
     overflow: hidden;
@@ -431,6 +442,35 @@ button {
 
 
 footer {
+    background-color: #151515;
+    text-align: center;
+    margin: 0 auto;
+    margin-top: 20px;
+    border-radius: 40px;
+    color: #FFF;
+    font-size: 20px;
+    padding-top: 10px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+footer p {
+    margin: 2px;
+}
+footer a {
+    background-color: #007aff;
+    color: #FFF;
+    text-align: center;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-decoration: dashed;
+    border-radius: 50px;
+    transition: .25s;
+}
+footer a:hover {
+    opacity: .6;
 }
 
 
