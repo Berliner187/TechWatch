@@ -41,24 +41,26 @@
 				<div>
 					<p>Weather Forecast</p>
 					<br>
-					<span>{{ weather_info[0] }}</span>
-					<p>{{ date.day_week }}</p>
-					<span>{{ weather_info[1] }}</span>
+					<span id="city"></span>
+					<p id="day_week">{{ date.day_week }}</p>
+					<span id="temperature">{{ weather_info['temperature'] }}</span>
 					<p>Sunrise: <br>
-						<span>{{ weather_info[4] }}</span>
+						<span id="sunrise_sub">{{ weather_info['sunrise'] }}</span>
 					</p>
-					<p>Last update: <br>{{ weather_info[7] }}</p>
+					<p>Last update: <br>
+						<span id="last_update"></span>
+					</p>
 				</div>
 				<div>
-					<img src="../static/img/{{weather_info[2][0]}}.png" alt="">
-					<p>{{ weather_info[2][0] }}<br>
-						<span>{{ weather_info[2][1] }}</span>
+					<img src="../static/img/{{ weather_info['sky'][0] }}.png" alt="">
+					<p id="sky">{{ weather_info['sky'] }}<br>
+						<span id="sky_sub">{{ weather_info['sky'] }}</span>
 					</p>
 					<p>Humidity: <br>
-						<span>{{ weather_info[3] }}%</span>
+						<span id="humidity_sub">{{ weather_info['humidity'] }}%</span>
 					</p>
 					<p>Sunset: <br>
-						<span>{{ weather_info[5] }}</span>
+						<span id="sunset_sub">{{ weather_info['sunset'] }}</span>
 					</p>
 				</div>
 			</section>
@@ -76,10 +78,15 @@
 			<h2>CPU</h2>
 			<ul id="cpu_percent" class="cpu_percent">
 				{% for cpu in cpu_percent %}
-					<li>CPU {{ loop.index }}: <span id="cpuPercent{{ loop.index }}">{{ cpu }}</span>%</li>
 					<div class="progress-bar-container">
-						<div class="progress-bar">
+						<div>
+							<span>CPU {{ loop.index }}:</span>
+						</div>
+						<div class="progress-bar cpu-progress">
 							<div class="progress-bar-fill" id="cpuBar{{ loop.index }}"></div>
+						</div>
+						<div>
+							<span id="cpuPercent{{ loop.index }}">{{ cpu }}</span>
 						</div>
 					</div>
 				{% endfor %}
@@ -134,10 +141,17 @@
 			</div>
 			<button class="quote-button" id="get-quote-btn">The following quote</button>
 		</div>
-		  
+
 	</section>
 
+	<footer>
+        <a target="_blank" href="https://berliner187.github.io">KOZAK • DEVELOPER ↗</a>
+		<p>Tech Watch, 2023</p>
+    </footer>
+
 </body>
+
+<script src="../static/js/weather.js"></script>
 
 <script>
 	// Функция для обновления списка заметок на фронте
@@ -176,211 +190,10 @@
 	});
 </script>
 
-<script>
-	const quoteBlock = document.querySelector('.quote-block');
-	const quoteText = document.querySelector('.quote-text');
-	const quoteAuthor = document.querySelector('.quote-author');
+<script src="../static/js/quotes.js"></script>
+<script src="../static/js/progress_bars.js"></script>
+<script src="../static/js/battery.js"></script>
+<script src="../static/js/ram.js"></script>
+<script src="../static/js/clock.js"></script>
 
-	// Функция для получения случайной цитаты
-	function getQuote() {
-	// Отправляем GET-запрос на API Flask
-	fetch('/quote')
-		.then(response => response.json())
-		.then(data => {
-			quoteText.textContent = data.text;
-			quoteAuthor.textContent = '— ' + data.author;
-		})
-		.catch(error => {
-		console.error(error);
-		});
-	}
-	
-	const getQuoteBtn = document.querySelector('#get-quote-btn');
-
-	getQuoteBtn.addEventListener('click', () => {
-	fetch('/quote') // обращаемся к Flask-маршруту, который возвращает случайную цитату
-		.then(response => response.json())
-		.then(data => {
-			quoteText.textContent = data.text;
-			quoteAuthor.textContent = '— ' + data.author;
-			quoteText.classList.add('animate'); // добавляем класс animate для анимации
-			setTimeout(() => {
-				quoteText.classList.remove('animate'); // убираем класс animate через 1 секунду
-			}, 1000);
-			})
-			.catch(error => {
-			console.error(error);
-			});
-	});
-
-	getQuote();
-
-</script>
-
-<script>
-	const memoryBar = document.getElementById("memoryBar");
-	const memoryLabel = document.getElementById("memoryLabel");
-	const diskCBar = document.getElementById("diskCBar");
-	const diskCLabel = document.getElementById("diskCLabel");
-	const diskDBar = document.getElementById("diskDBar");
-	const diskDLabel = document.getElementById("diskDLabel");
-
-	function paintProgreessBar(bar, percentUsed) {
-		if (percentUsed < 10) {
-				bar.style.backgroundColor = "#6BC1FF";
-			} else if (percentUsed >= 10 && percentUsed < 20) {
-				bar.style.backgroundColor = "#6BFFE3";
-			} else if (percentUsed >= 20 && percentUsed < 30) {
-				bar.style.backgroundColor = "#6BFF9C";
-			} else if (percentUsed >= 30 && percentUsed < 40) {
-				bar.style.backgroundColor = "#7EFF6B";
-			} else if (percentUsed >= 40 && percentUsed < 50) {
-				bar.style.backgroundColor = "#D1FF6B";
-			} else if (percentUsed >= 50 && percentUsed < 60) {
-				bar.style.backgroundColor = "#FFF86B";
-			} else if (percentUsed >= 60 && percentUsed < 70) {
-				bar.style.backgroundColor = "#FFE36B";
-			} else if (percentUsed >= 70 && percentUsed < 80) {
-				bar.style.backgroundColor = "#FFC46B";
-			} else if (percentUsed >= 80 && percentUsed < 90) {
-				bar.style.backgroundColor = "#FFA06E";
-			} else {
-				bar.style.backgroundColor = "#FF6E6E";
-			}
-	}
-
-	function updateMemoryProgressBar() {
-		fetch('/memory-usage')
-		.then(response => response.json())
-		.then(data => {
-			const totalMemory = data.total_memory;
-			const usedMemory = data.memory_usage;
-			const percentUsedMemory = data.memory_percent;
-			memoryBar.style.width = percentUsedMemory + "%";
-			paintProgreessBar(memoryBar, percentUsedMemory);
-		});
-	}
-
-	function updateDiskCProgressBar() {
-		fetch('/disk-c')
-		.then(response => response.json())
-		.then(data => {
-			const totalSpace = data.total_size;
-			const freeSpace = data.free_size;
-			const percentageFree = 100 - Math.round((freeSpace / totalSpace) * 100);
-			diskCBar.style.width = percentageFree + "%";
-			paintProgreessBar(diskCBar, percentageFree);
-		});
-	}
-
-	function updateDiskDProgressBar() {
-		fetch('/disk-d')
-		.then(response => response.json())
-		.then(data => {
-			const totalSpace = data.total_size;
-			const freeSpace = data.free_size;
-			const percentageFree = 100 - Math.round((freeSpace / totalSpace) * 100);
-			diskDBar.style.width = percentageFree + "%";
-			paintProgreessBar(diskDBar, percentageFree);
-		});
-	}
-
-	function updateCpuPercent() {
-		fetch('/cpu_percent')
-		.then(response => response.json())
-		.then(data => {
-			// Обновление значений процентного использования CPU и ширины прогресс-баров
-			for (let i = 0; i < data.cpu_percent.length; i++) {
-				document.getElementById('cpuPercent' + (i + 1)).textContent = data.cpu_percent[i];
-				document.getElementById('cpuBar' + (i + 1)).style.width = data.cpu_percent[i] + '%';
-				paintProgreessBar(document.getElementById('cpuBar' + (i + 1)), data.cpu_percent[i]);
-			}
-		})
-		.catch(error => console.error('Ошибка при получении значений процентного использования CPU:', error));
-	}
-
-	updateMemoryProgressBar();
-	updateDiskCProgressBar();
-	updateDiskDProgressBar();
-	updateCpuPercent();
-	
-	setInterval(updateMemoryProgressBar, 1000);
-	setInterval(updateDiskCProgressBar, 1000);
-	setInterval(updateDiskDProgressBar, 1000);
-
-	setInterval(updateCpuPercent, 600);
-</script>
-
-<script>
-	function getMemSpace() {
-		return fetch('/memory-usage')
-			.then(response => {
-			if (!response.ok) {
-				throw new Error("Failed to fetch disk space");
-			}
-			return response.json();
-			})
-			.then(data => {
-			// Обновляем progress bar с полученными данными
-			const { total_memory, memory_usage } = data;
-			})
-			.catch(error => console.error(error));
-	}
-
-	getMemSpace();
-
-	setInterval(getMemSpace, 2000);
-</script>
-
-<script>
-	function updateBatteryLevel() {
-		fetch('/battery')
-		.then(response => response.json())
-		.then(data => {
-			document.getElementById('battery-percent').textContent = `${data.percent}%`;
-			// Смена иконки батареи
-			let imgElem = document.getElementById('battery-level-img');
-			imgElem.src = 'static/img/battery-' + data.battery_level + '.png';
-
-			document.getElementById('battery_time_left').textContent = data.time_left;
-		});
-	}
-
-	function updateMemoryUsage() {
-		$.ajax({
-			url: '/memory-usage',
-			type: 'GET',
-			dataType: 'json',
-			success: function(response) {
-				$('#memory_usage').text(response.memory_usage + ' GB');
-				$('#total_memory').text('/ ' + response.total_memory + ' GB');
-				$('#memory_percent').text('(' + response.memory_percent + '%)');
-			},
-			complete: function() {
-				// Вызов функции снова через 1 секунду
-				setTimeout(updateMemoryUsage, 1000);
-			}
-		});
-	}
-
-	// Вызов функции первый раз
-	$(document).ready(function() {
-		updateMemoryUsage();
-	});
-
-	setInterval(updateBatteryLevel, 3000);
-</script>
-
-<script>
-	function updateClock() {
-	const now = new Date();
-	const hours = now.getHours().toString().padStart(2, '0');
-	const minutes = now.getMinutes().toString().padStart(2, '0');
-	const timeString = `${hours}:${minutes}`;
-	const clock = document.getElementById("clock");
-	clock.innerHTML = timeString;
-	}
-
-	setInterval(updateClock, 1000);
-</script>
 </html>
