@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, make_response
 import time
 from datetime import datetime
 import platform
@@ -15,9 +15,11 @@ import weather_forecast
 
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'random_secret_key'
 
 
 notes = []
+s = 0
 
 
 class SystemIndicators:
@@ -47,9 +49,8 @@ def greeting():
         return 'Good Night'
 
 
-def get_time_left():
+def get_battery_time_left():
     battery = psutil.sensors_battery()
-    print(battery.secsleft)
     if battery.secsleft > 0:
         time_left_sec = battery.secsleft
         hours = time_left_sec // 3600
@@ -100,23 +101,7 @@ def get_disks_info():
     return disks_indicators
 
 
-@app.route('/')
-def index():
-    city = 'Moscow'
-
-    now = datetime.now()
-    date = now.strftime("%d/%m/%Y")
-    day_week = now.strftime("%A")
-
-    # Системная информация
-    os_info = f"{platform.system()} {platform.release()}"
-    os_name = f"{psutil.Process().name()} ({psutil.Process().pid})"
-
-    cpu_percent = psutil.cpu_percent(percpu=True)
-
-    # Hostname
-    hostname = socket.gethostname()
-
+def get_battery_indicators():
     # Аккумулятор
     battery = psutil.sensors_battery()
     plugged = battery.power_plugged
@@ -138,16 +123,37 @@ def index():
         else:
             battery_level = 0
 
+    battery_indicators = {
+        "battery_level": battery_level, "percent": percent,
+        "time_left": get_battery_time_left()
+    }
+    return battery_indicators
+
+
+@app.route('/')
+@app.route('/dashboard')
+def index():
+    city = 'Moscow'
+
+    now = datetime.now()
+    date = now.strftime("%d/%m/%Y")
+    day_week = now.strftime("%A")
+
+    # Системная информация
+    os_info = f"{platform.system()} {platform.release()}"
+    os_name = f"{psutil.Process().name()} ({psutil.Process().pid})"
+
+    cpu_percent = psutil.cpu_percent(percpu=True)
+
+    # Hostname
+    hostname = socket.gethostname()
+
+    current_color = request.cookies.get('color')
+
     # Дата и день недели
     date_indicators = {
         "date": date, "day_week": day_week
     }
-
-    battery_indicators = {
-        "battery_level": battery_level, "percent": percent, "time_left": get_time_left()
-    }
-
-    print(get_disks_info()["disk_info"])
 
     return render_template(
         'index.html',
@@ -159,7 +165,7 @@ def index():
         cpu_percent=cpu_percent,
         os_name=os_name,
         weather_info=weather_forecast.get_weather(city),
-        battery=battery_indicators,
+        battery=get_battery_indicators(),
         disk_info=get_disks_info()["disk_info"],
         hostname=hostname,
         memory=get_memory_info()
@@ -191,6 +197,14 @@ def disk_space():
     return disks_array
 
 
+@app.route('/weather')
+def weather():
+    weather_file = open('weather_data.json')
+    response_data = json.load(weather_file)
+    data = weather_forecast.get_weather(response_data["weather_data"]["city"])
+    return jsonify(data)
+
+
 @app.route('/disk-c')
 def get_c_disk():
     return jsonify(disk_space()[0])
@@ -209,31 +223,7 @@ def get_cpu_percent():
 
 @app.route('/battery')
 def get_battery():
-    battery = psutil.sensors_battery()
-    plugged = battery.power_plugged
-    percent = battery.percent
-
-    if plugged:
-        battery_level = 'charge'
-    else:
-        if 5 < percent <= 20:
-            battery_level = 1
-        elif 20 < percent <= 40:
-            battery_level = 2
-        elif 40 < percent <= 70:
-            battery_level = 3
-        elif 70 < percent <= 90:
-            battery_level = 4
-        elif 90 < percent <= 100:
-            battery_level = 5
-        else:
-            battery_level = 0
-    battery_info = {
-        "battery_level": battery_level,
-        "percent": percent,
-        "time_left": get_time_left()
-    }
-    return jsonify(battery_info)
+    return jsonify(get_battery_indicators())
 
 
 @app.route('/memory-usage')
