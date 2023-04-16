@@ -6,6 +6,8 @@ import requests
 
 
 def get_weather(city):
+    if city is None:
+        pass
     api_key_file = open('API_KEY.txt')
     api_key = api_key_file.readline()
 
@@ -41,11 +43,13 @@ def get_weather(city):
         temperature = str(round(data_from_openweather['main']['temp'] - 273.15, 1)).replace('.', ',')
         cloudiness = [data_from_openweather['weather'][0]['main'], data_from_openweather['weather'][0]['description']]
         humidity = data_from_openweather['main']['humidity']
-        rain_chance = data_from_openweather
         sunrise, sunset = get_sunrise_and_sunset_times(data_from_openweather)
 
-        # Возвращаем данные о погоде в виде списка
-        return [city, f'{temperature} °C', cloudiness, humidity, sunrise, sunset]
+        # Данные о погоде в виде списка
+        return {
+            "city": city, "temperature": f'{temperature} °C', "sky": cloudiness,
+            "humidity": f'{humidity}%', "sunrise": sunrise, "sunset": sunset
+        }
 
     # Получаем текущее время
     now = datetime.now()
@@ -53,12 +57,11 @@ def get_weather(city):
     # Загружаем данные из файла
     data = load_data()
 
-    # Если данные уже есть и последний запрос был менее 5 минут назад
+    # Если данные уже есть и последний запрос был менее 20 минут назад
     if "last_request" in data and "weather_data" in data and (
-            now - datetime.strptime(data["last_request"], "%Y-%m-%d %H:%M:%S.%f")).seconds < 300:
+            now - datetime.strptime(data["last_request"], "%Y-%m-%d %H:%M:%S.%f")).seconds < 1200:
         # Используем уже имеющиеся данные
         weather_data = data["weather_data"]
-        weather_data.append(data["last_request"])
     else:
         # Получаем новые данные о погоде
         weather_data = get_weather_data()
@@ -67,18 +70,6 @@ def get_weather(city):
         data["weather_data"] = weather_data
         save_data(data)
 
-    def get_lucky_date():
-        last_request_time = datetime.strptime(data["last_request"], "%Y-%m-%d %H:%M:%S.%f")
-        print(last_request_time)
+    weather_data["time_last_request"] = data["last_request"]
 
-        # Извлекаем число, месяц и время (часы, минуты, секунды)
-        day = last_request_time.day
-        month = last_request_time.strftime("%B")  # Получаем название месяца
-        hour = last_request_time.hour
-        minute = last_request_time.minute
-        second = last_request_time.second
-
-        return f"{day} {month}, in {hour:02d}:{minute:02d}:{second:02d}"
-
-    weather_data.append(get_lucky_date())
     return weather_data
