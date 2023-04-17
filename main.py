@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, make_response
+from flask import Flask, render_template, jsonify, request, make_response, session
 import time
 from datetime import datetime
 import platform
@@ -13,9 +13,11 @@ import json
 import quotes_obs
 import weather_forecast
 
+from version import __version__
+
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'random_secret_key'
+app.config['SECRET_KEY'] = 'Dn8dbs8182DSBH8s'
 
 
 notes = []
@@ -133,7 +135,7 @@ def get_battery_indicators():
 @app.route('/')
 @app.route('/dashboard')
 def index():
-    city = 'Moscow'
+    city = ''
 
     now = datetime.now()
     date = now.strftime("%d/%m/%Y")
@@ -148,11 +150,40 @@ def index():
     # Hostname
     hostname = socket.gethostname()
 
-    current_color = request.cookies.get('color')
-
     # Дата и день недели
     date_indicators = {
         "date": date, "day_week": day_week
+    }
+
+    colors_default = {
+        "Graphite Shade": '#9a9a9a',
+        "Absolute Black": '#000',
+        "Scarlet Fire": '#FF5252',
+        "Orange Burst": '#ff9500',
+        "Golden Lemon": '#fedc45',
+        "Salad Rain": '#4cd964',
+        "Azure Sky": '#0070c9',
+        "Lavender Mist": '#a87eeb',
+    }
+    # Spiced Earth Tones
+    colors = {
+        "Misty Mauve": "#e5ceba",
+        "Coral Blush": "#e4c0ac",
+        "Dusty Rose": "#d1a48b",
+        "Amber Glow": "#ba976e",
+        "Cinnamon Spice": "#a26d4f",
+        "Sandstone": "#c6957e",
+        "Copper Canyon": "#ce7f71",
+        "Stormy Sea": "#7d949b",
+        "Enigmatic Mists": "#6b8675"
+    }
+    colors = {
+        "Tranquil Turquoise": "#B9D6C2",
+        "Smoky turquoise": "#B2EBF2",
+        "Sugar Pink": "#F48FB1",
+        "Powdery Peach": "#FFD1B5",
+        "Grey Amethyst": "#BDBDBD",
+        "Purple Nebula": "#a693db"
     }
 
     return render_template(
@@ -168,7 +199,9 @@ def index():
         battery=get_battery_indicators(),
         disk_info=get_disks_info()["disk_info"],
         hostname=hostname,
-        memory=get_memory_info()
+        memory=get_memory_info(),
+        colors=colors,
+        current_version=__version__
     )
 
 

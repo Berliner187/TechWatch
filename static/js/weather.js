@@ -29,7 +29,6 @@ $(document).ready(function(){
 });
 
 function formatDateString(dateStr) {
-    console.log(dateStr);
     const date = new Date(dateStr);
     const now = new Date();
 
@@ -72,7 +71,6 @@ function getWeather() {
     fetch('/weather')
     .then(response => response.json())
     .then(data => {
-        console.log(data);
         city.textContent = data['city'];
         temperature.textContent = data['temperature'];
         sky.textContent = data['sky'][0];
@@ -85,7 +83,6 @@ function getWeather() {
         const prettyDate = formatDateString(dateStr);
 
         lastUpdate.textContent = prettyDate;
-        console.log(data['time_last_request']);
     })
 }
 

@@ -22,9 +22,11 @@
 
 body {
     font-family: 'SF Pro Medium';
-    background: linear-gradient(106.78deg, #A5B1D1 -0.64%, #BBA6DD 102.39%);
+    background-color: #151515;
+    /* background: linear-gradient(106.78deg, #A5B1D1 -0.64%, #BBA6DD 102.39%); */
     /* background: linear-gradient(106.78deg, #486ECE -0.64%, #956CD7 102.39%); */
     background-size: 200%;
+    transition: background-color 0.5s ease;
 }
 
 header, .container-01, .container-02,
@@ -37,6 +39,8 @@ footer {
 header, .clock-block, .weather, .sys-info,
 .note-block, .quote-block, footer {
     background-color: #151515;
+}
+.note-block, .quote-block {
     color: #f2f2f2;
 }
 
@@ -59,6 +63,8 @@ header div {
     display: flex;
     flex-direction: row;
     align-items: center;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 header div p {
     font-size: 24px;
@@ -68,6 +74,89 @@ header div img {
     align-content: flex-end;
     height: 40px;
 }
+
+.color-button {
+    cursor: pointer;
+}
+.color-buttons {
+    display: block;
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: relative;
+}
+
+/* Стили для иконки */
+.icon {
+    cursor: pointer;
+    user-select: none;
+}
+.icon img {
+    width: 30px;
+    height: 30px;
+}
+  
+.color-button {
+    background-color: rgba(51, 51, 51, 0);
+    color: #000000;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+  
+#colorButton {
+    display: none;
+}
+  
+  
+  .color-button-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 200px;
+    background-color: #222222;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    max-height: 500px;
+    overflow-y: auto;
+    transition: max-height 0.3s ease;
+  }
+  
+  .color-button.active .color-button-dropdown {
+    max-height: 500px;
+  }
+  
+  /* Добавлено правило для смены цвета при клике на кнопку */
+  .color-button-dropdown button {
+    cursor: pointer;
+    border-radius: 10px;
+    border: none;
+    padding: 5px;
+    color: #232323;
+    padding-left: 20px;
+    padding-right: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(2px);
+    width: 170px;
+  }
+  
+  .color-button-dropdown button:active,
+  .color-button-dropdown button:focus {
+    outline: none; 
+    box-shadow: none;
+    transform: translateY(0);
+  }
+  
+  .color-button-dropdown button:focus {
+    outline: none;
+  }
+  
 
 .container-01 {
     text-align: center;
@@ -225,16 +314,11 @@ header, .container-01 div {
     font-size: 16px;
     overflow-y: scroll;
     font-family: 'SF Pro Text';
-}
-.note-block {
     scrollbar-width: none; /* Убираем ширину полосы прокрутки */
     scrollbar-color: transparent transparent; /* Задаем цвет полосы прокрутки */
   }
   
 
-.note-block li {
-    color: #dddddd;
-}
 
 .note-block-title {
     margin-top: 0;
@@ -262,21 +346,6 @@ ul.notes-list {
 ul.notes-list li {
     margin-bottom: 10px;
 }
-
-/* 
-.deleteNoteButton {
-    border: none;
-    padding: 5px;
-    border-radius: 20px;
-    transition: .2s;
-    color: #333;
-    background-color: #c2c2c2;
-}
-.deleteNoteButton:hover {
-    background-color: #b83a4b;
-    opacity: .9;
-    color: #f2f2f2;
-} */
 
 /* Создаем круглую кнопку в стиле Mac OS */
 .deleteNoteButton {
@@ -328,39 +397,7 @@ ul.notes-list li::before {
     width: 1em;
     margin-right: 0.5em;
 }
-  
-  
-.note-block form input[type="text"] {
-    width: 100%;
-    margin: 0 auto;
-    padding: 10px;
-    border: 1px solid #d9d9d9;
-    border-radius: 20px;
-    box-sizing: border-box;
-    font-size: 16px;
-    color: #333;
-    margin-bottom: 10px;
-}
-  
-.note-block form input[type="submit"] {
-    background-color: #007aff;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-    display: block;
-    margin: 0 auto;
-    font-family: 'SF Pro Text';
-}
-  
-.note-block form input[type="submit"]:hover,
-.quote-button:hover {
-    background-color: rgba(0, 98, 204, .5);
-}
-  
+
 .note-list {
     list-style: none;
     padding: 0;
@@ -420,7 +457,6 @@ ul.notes-list li::before {
   
 .quote-button {
     text-align: center;
-    background-color: #007aff;
     color: #ebebeb;
     border: none;
     padding: 10px 20px;
@@ -430,10 +466,6 @@ ul.notes-list li::before {
     display: block;
     margin: 0 auto;
 }
-  
-button {
-    font-family: 'SF Pro Text';
-}
 
 .quote-author {
     font-family: 'Century Gothic';
@@ -441,33 +473,69 @@ button {
 }
 
 
+.note-input {
+    width: 100%;
+    margin: 0 auto;
+    padding: 10px;
+    border: none;
+    border-radius: 20px;
+    box-sizing: border-box;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 10px;
+}
+.note-button {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+    display: block;
+    margin: 0 auto;
+}
+
+
+/* АКЦЕНТНЫЙ ЦВЕТ КНОПОК */
+.quote-button, .note-button, footer a {
+    font-family: 'SF Pro Medium';
+    background-color: #a693db;
+    color: #151515;
+    transition: .25s;
+    transition-duration: .3s;
+    opacity: 1;
+}
+.quote-button:hover, .note-button:hover, 
+footer a:hover {
+    opacity: .5;
+}
+
+
 footer {
-    background-color: #151515;
     text-align: center;
     margin: 0 auto;
     margin-top: 20px;
     border-radius: 40px;
-    color: #FFF;
     font-size: 20px;
-    padding-top: 10px;
+    padding-top: 12px;
+    padding-bottom: 12px;
     display: flex;
     align-items: center;
     flex-direction: column;
 }
 footer p {
-    margin: 2px;
+    color: #f2f2f2;
+    margin: 10px;
 }
 footer a {
-    background-color: #007aff;
-    color: #FFF;
     text-align: center;
     padding-left: 20px;
     padding-right: 20px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    text-decoration: dashed;
+    padding-top: 5px;
+    padding-bottom: 5px;
     border-radius: 50px;
     transition: .25s;
+    font-size: 32px;
 }
 footer a:hover {
     opacity: .6;

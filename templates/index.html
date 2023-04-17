@@ -1,18 +1,35 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+	<title>Tech Watch</title>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Tech Watch</title>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="shortcut icon" href="../static/img/tw.png" type="image/png">
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
+<style>
+	
+</style>
 <body>
 
 	<header>
+		<!-- Костыль -->
+		<button id="colorButton"></button>
 		<div>
+			<div class="icon">
+				<img src="../static/img/setting.png" alt="">
+			</div> <!-- Иконка для раскрытия блока -->
+			<div class="color-buttons">
+				<div class="color-button">
+				  <div class="color-button-dropdown">
+					{% for color, hex in colors.items() %}
+						<button data-color="{{ hex }}" style="background-color: {{hex}}">{{ color }}</button>
+					{% endfor %}
+				  </div>
+				</div>
+			</div>
 			<p>{{ hostname }}</p>
 		</div>
 		<div>
@@ -128,8 +145,8 @@
 			<h2 class="note-block-title">Tasks</h2>
 			<ul class="notes-list" id="notesList"></ul>
 			<form id="addNoteForm">
-				<input type="text" id="noteInput" placeholder="Place for task...">
-				<input type="submit" value="Add Task" id="addNoteButton">
+				<input type="text" id="noteInput" placeholder="Place for task..." class="note-input">
+				<input type="submit" value="Add Task" id="addNoteButton" class="note-button">
 			</form>
 		</div>
 		
@@ -147,49 +164,14 @@
 	<footer>
         <a target="_blank" href="https://berliner187.github.io">KOZAK • DEVELOPER ↗</a>
 		<p>Tech Watch, 2023</p>
+		<p>Version: {{ current_version }}</p>
     </footer>
 
 </body>
 
+<script src="../static/js/colors-bg.js"></script>
 <script src="../static/js/weather.js"></script>
-
-<script>
-	// Функция для обновления списка заметок на фронте
-	function updateNotesList() {
-		$.get('/get_notes', function(data) {
-			var notes = data.notes;
-			var notesList = $('#notesList');
-			notesList.empty();  // Очистка списка заметок
-			for (var i = 0; i < notes.length; i++) {
-				var noteItem = '<li class="noteItem">' + notes[i] + '</li>';  // Создание элемента заметки
-				var deleteNoteButton = '<button class="deleteNoteButton" data-note="' + notes[i] + '"></button>';  // Создание кнопки удаления заметки
-				notesList.append(noteItem + deleteNoteButton);  // Добавление заметки и кнопки в список
-			}
-		});
-	}
-	// Обработка события отправки формы
-	$('#addNoteForm').on('submit', function(event) {
-		event.preventDefault();  // Отмена стандартного поведения формы
-		var note = $('#noteInput').val();  // Получение значения заметки из поля ввода
-		$.post('/add_note', {note: note}, function(data) {
-			updateNotesList();  // Вызов функции обновления списка заметок на фронтенде
-			$('#noteInput').val('');  // Очистка поля ввода
-		});
-	});
-	// Обработка события клика на кнопке удаления заметки
-	$(document).on('click', '.deleteNoteButton', function() {
-		var note = $(this).data('note');  // Получение значения заметки из атрибута data-note кнопки удаления
-		$.post('/delete_note', {note: note}, function(data) {
-			updateNotesList();  // Вызов функции обновления списка заметок на фронтенде
-		});
-	});
-
-	// Вызов функции обновления списка заметок при загрузке страницы
-	$(document).ready(function() {
-		updateNotesList();
-	});
-</script>
-
+<script src="../static/js/notes.js"></script>
 <script src="../static/js/quotes.js"></script>
 <script src="../static/js/progress_bars.js"></script>
 <script src="../static/js/battery.js"></script>
