@@ -35,7 +35,7 @@ window.addEventListener('load', function() {
         document.body.style.backgroundColor = selectedColor;
         $('.note-button').css('background-color', selectedColor);
         $('.quote-button').css('background-color', selectedColor);
-        $('footer a').css('background-color', selectedColor);
+        $('.footer-developer').css('background-color', selectedColor);
         $('#notesList').css('color', selectedColor);
     }
 });
@@ -45,7 +45,7 @@ const changeBackgroundColor = (color) => {
     document.body.style.backgroundColor = color;
     $('.note-button').css('background-color', color);
     $('.quote-button').css('background-color', color);
-    $('footer a').css('background-color', color);
+    $('.footer-developer').css('background-color', color);
     $('#notesList').css('color', color);
 };
 

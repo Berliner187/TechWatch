@@ -28,41 +28,66 @@ function paintProgreessBar(bar, percentUsed) {
             bar.style.backgroundColor = "#FF6E6E";
         }
 }
+function paintProgressDisks(progressBar, percentageFree) {
+    if (percentageFree >= 90) {
+        progressBar.classList.add('danger');
+        progressBar.classList.remove('warning');
+      } else if (percentageFree >= 80) {
+        progressBar.classList.add('warning');
+        progressBar.classList.remove('danger');
+      } else {
+        progressBar.classList.remove('warning');
+        progressBar.classList.remove('danger');
+      }
+      if (percentageFree < 20) {
+        progressBar.style.backgroundColor = "#6BFFE3";
+      } else if (percentageFree < 30) {
+        progressBar.style.backgroundColor = "#6BFF9C";
+      } else if (percentageFree < 40) {
+        progressBar.style.backgroundColor = "#7EFF6B";
+      } else if (percentageFree < 50) {
+        progressBar.style.backgroundColor = "#D1FF6B";
+      } else if (percentageFree < 60) {
+        progressBar.style.backgroundColor = "#FFF86B";
+      } else if (percentageFree < 70) {
+        progressBar.style.backgroundColor = "#FFE36B";
+      } else if (percentageFree < 80) {
+        progressBar.style.backgroundColor = "#FFC46B";
+      } else if (percentageFree < 90) {
+        progressBar.style.backgroundColor = "#FFA06E";
+      } else {
+        progressBar.style.backgroundColor = "#FF6E6E";
+      }
+}
+
 
 function updateMemoryProgressBar() {
     fetch('/memory-usage')
     .then(response => response.json())
     .then(data => {
-        const totalMemory = data.total_memory;
-        const usedMemory = data.memory_usage;
         const percentUsedMemory = data.memory_percent;
         memoryBar.style.width = percentUsedMemory + "%";
         paintProgreessBar(memoryBar, percentUsedMemory);
     });
 }
 
-function updateDiskCProgressBar() {
-    fetch('/disk-c')
-    .then(response => response.json())
-    .then(data => {
-        const totalSpace = data.total_size;
-        const freeSpace = data.free_size;
-        const percentageFree = 100 - Math.round((freeSpace / totalSpace) * 100);
-        diskCBar.style.width = percentageFree + "%";
-        paintProgreessBar(diskCBar, percentageFree);
-    });
-}
+function updateDisksProgressBar() {
+    fetch('/disks-info')
+        .then(response => response.json())
+        .then(data => {
 
-function updateDiskDProgressBar() {
-    fetch('/disk-d')
-    .then(response => response.json())
-    .then(data => {
-        const totalSpace = data.total_size;
-        const freeSpace = data.free_size;
-        const percentageFree = 100 - Math.round((freeSpace / totalSpace) * 100);
-        diskDBar.style.width = percentageFree + "%";
-        paintProgreessBar(diskDBar, percentageFree);
-    });
+            for (let i = 0; i < data.length; i++) {
+                const diskData = data[i];
+                const diskBar = document.getElementById(`disk_${i}`);
+                const totalSpace = diskData.total_size;
+                const freeSpace = diskData.free_size;
+                const percentageFree = 100 - Math.round((freeSpace / totalSpace) * 100);
+                diskBar.style.width = percentageFree + "%";
+                paintProgressDisks(diskBar, percentageFree);
+            }
+        })
+
+    .catch(error => console.error('Error fetching disks info', error));
 }
 
 function updateCpuPercent() {
@@ -80,11 +105,9 @@ function updateCpuPercent() {
 }
 
 updateMemoryProgressBar();
-updateDiskCProgressBar();
-updateDiskDProgressBar();
+updateDisksProgressBar();
 updateCpuPercent();
 
 setInterval(updateMemoryProgressBar, 1000);
-setInterval(updateDiskCProgressBar, 10000);
-setInterval(updateDiskDProgressBar, 10000);
+setInterval(updateDisksProgressBar, 10000);
 setInterval(updateCpuPercent, 500);

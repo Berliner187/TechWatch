@@ -87,4 +87,4 @@ function getWeather() {
 }
 
 getWeather();
-setInterval(getWeather, 1000);
+setInterval(getWeather, 10000);

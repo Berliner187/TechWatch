@@ -5,7 +5,7 @@ function updateBatteryLevel() {
         document.getElementById('battery-percent').textContent = `${data.percent}%`;
         // Смена иконки батареи
         let imgElem = document.getElementById('battery-level-img');
-        imgElem.src = 'static/img/battery-' + data.battery_level + '.png';
+        imgElem.src = 'static/img/battery-' + data.battery_icon + '.png';
 
         document.getElementById('battery_time_left').textContent = data.time_left;
     });

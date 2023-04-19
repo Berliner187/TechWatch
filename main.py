@@ -38,6 +38,19 @@ class SystemIndicators:
         return
 
 
+def read_city():
+    file_with_city = 'city.txt'
+
+    if os.path.exists(file_with_city):
+        with open(file_with_city) as file:
+            return file.readline()
+    else:
+        print(f'Make file {file_with_city}.')
+        with open(file_with_city, 'w') as file:
+            file.write('Moscow')
+        return
+
+
 def greeting():
     hms = datetime.today()
     time_now = hms.hour * 3600 + hms.minute * 60 + hms.second
@@ -110,32 +123,36 @@ def get_battery_indicators():
     percent = battery.percent
 
     if plugged:
-        battery_level = 'charge'
+        battery_status = 'charge'
     else:
-        if 5 < percent <= 20:
-            battery_level = 1
-        elif 20 < percent <= 40:
-            battery_level = 2
-        elif 40 < percent <= 70:
-            battery_level = 3
-        elif 70 < percent <= 90:
-            battery_level = 4
-        elif 90 < percent <= 100:
-            battery_level = 5
-        else:
-            battery_level = 0
+        battery_status = 'pass'
+
+    if 5 < percent <= 20:
+        battery_level = 1
+    elif 20 < percent <= 50:
+        battery_level = 2
+    elif 50 < percent <= 70:
+        battery_level = 3
+    elif 70 < percent <= 90:
+        battery_level = 4
+    elif 90 < percent <= 100:
+        battery_level = 5
+    else:
+        battery_level = 0
 
     battery_indicators = {
-        "battery_level": battery_level, "percent": percent,
+        "battery_icon": f'{battery_status}-{battery_level}',
+        "percent": percent,
         "time_left": get_battery_time_left()
     }
+
     return battery_indicators
 
 
 @app.route('/')
 @app.route('/dashboard')
 def index():
-    city = ''
+    city = read_city()
 
     now = datetime.now()
     date = now.strftime("%d/%m/%Y")
@@ -185,6 +202,15 @@ def index():
         "Grey Amethyst": "#BDBDBD",
         "Purple Nebula": "#a693db"
     }
+    colors = {
+        'Quantum': '#a693db',
+        'Binary': '#B5D6C3',
+        'Neural': '#E0E2DB',
+        'Pixelate': '#F9E4B7',
+        'Cyberspace': '#FFD1B5',
+        'Code': '#E1B16A',
+        'Byte': '#BD7198'
+    }
 
     return render_template(
         'index.html',
@@ -198,6 +224,7 @@ def index():
         weather_info=weather_forecast.get_weather(city),
         battery=get_battery_indicators(),
         disk_info=get_disks_info()["disk_info"],
+        disk_space=disk_space(),
         hostname=hostname,
         memory=get_memory_info(),
         colors=colors,
@@ -219,14 +246,15 @@ def disk_space():
 
     disks_array = []
     hidden_data_dict = {}
+
     for i, disk_data in enumerate(disks):
         hidden_data_dict['total_size'] = disk_data[0]
         hidden_data_dict['free_size'] = disk_data[1]
         hidden_data_dict['occupied'] = disk_data[2]
         hidden_data_dict['used_percent'] = disk_data[3]
-
         disks_array.append(hidden_data_dict)
         hidden_data_dict = {}
+
     return disks_array
 
 
@@ -238,14 +266,10 @@ def weather():
     return jsonify(data)
 
 
-@app.route('/disk-c')
-def get_c_disk():
-    return jsonify(disk_space()[0])
-
-
-@app.route('/disk-d')
-def get_d_disk():
-    return jsonify(disk_space()[1])
+@app.route('/disks-info')
+def disks_info():
+    print(disk_space())
+    return jsonify(disk_space())
 
 
 @app.route('/cpu_percent')

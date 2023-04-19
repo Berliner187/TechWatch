@@ -37,7 +37,7 @@
 		</div>
 		<div>
 			<p id="battery-percent">{{ battery.percent }}%</p>
-			<img id="battery-level-img" src="../static/img/battery-{{battery.battery_level}}.png" alt="battery-icon">
+			<img id="battery-level-img" src="../static/img/battery-{{battery.battery_icon}}.png" alt="battery-icon">
 			<p id="battery_time_left">{{ battery.time_left }}</p>
 		</div>
 	</header>
@@ -86,7 +86,7 @@
 	</section>
 
 	<section class="container-02">
-		<div class="sys-info">
+		<section class="sys-info">
 			<!-- Операционная система -->
 			<hr>
 			<h2>OS</h2>
@@ -126,44 +126,40 @@
 			<h2>ROM</h2>
 			{% for i in range(disk_info | length) %}
 				<h3>{{ disk_info[i] }}</h3>
+				<div class="progress-bar-container">
+					<div class="progress-bar">
+						<div class="progress-bar-fill" id="disk_{{i}}"></div>
+					</div>
+					<div class="progress-bar-label"></div>
+				</div>
 			{% endfor %}
-			<div class="progress-bar-container">
-				<div class="progress-bar">
-				  	<div class="progress-bar-fill" id="diskCBar"></div>
-				</div>
-				<div class="progress-bar-label" id="diskCLabel"></div>
-			</div>
-			<div class="progress-bar-container">
-				<div class="progress-bar">
-				  	<div class="progress-bar-fill" id="diskDBar"></div>
-				</div>
-				<div class="progress-bar-label" id="diskDLabel"></div>
-			</div>
-		</div>
 
-		<div class="note-block">
+			
+		</section>
+
+		<section class="note-block">
 			<h2 class="note-block-title">Tasks</h2>
 			<ul class="notes-list" id="notesList"></ul>
 			<form id="addNoteForm">
-				<input type="text" id="noteInput" placeholder="Place for task..." class="note-input">
-				<input type="submit" value="Add Task" id="addNoteButton" class="note-button">
+				<input type="text" id="noteInput" placeholder="Add a task" class="note-input">
+				<input type="submit" value="Add a Task" id="addNoteButton" class="note-button">
 			</form>
-		</div>
+		</section>
 		
-		<div class="quote-block">
+		<section class="quote-block">
 			<h2>Quotes</h2>
 			<div>
 				<h3 class="quote-text"></h3>
 				<p class="quote-author"></p>
 			</div>
 			<button class="quote-button" id="get-quote-btn">The following quote</button>
-		</div>
+		</section>
 
 	</section>
 
 	<footer>
-        <a target="_blank" href="https://berliner187.github.io">KOZAK • DEVELOPER ↗</a>
-		<p>Tech Watch, 2023</p>
+        <a target="_blank" href="https://berliner187.github.io" class="footer-developer">KOZAK • DEVELOPER ↗</a>
+		<p><a href="https://github.com/Berliner187/TechWatch">Tech Watch</a>, 2023</p>
 		<p>Version: {{ current_version }}</p>
     </footer>
 
