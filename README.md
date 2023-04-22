@@ -49,3 +49,5 @@ TechWatch использует следующие технологии:
 - Сайт: [KOZAK • DEVELOPER](https://berliner187.github.io)
 - Промо: [KOZAK • PROMO • DEVELOPER](https://berliner187.github.io/promo)
 - GitHub: https://github.com/Berliner187/TechWatch
+- Dribbble: https://dribbble.com/ciscer101
+- Pinterest: https://www.pinterest.de/KOZAK_DEVELOPER/
