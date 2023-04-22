@@ -30,37 +30,36 @@
 				  </div>
 				</div>
 			</div>
-			<p>{{ hostname }}</p>
+			<p>{{ top_header.hostname }}</p>
 		</div>
 		<div>
-			<h2>{{ greeting }}</h2>
+			<h2>{{ top_header.greeting }}</h2>
 		</div>
 		<div>
-			<p id="battery-percent">{{ battery.percent }}%</p>
-			<img id="battery-level-img" src="../static/img/battery-{{battery.battery_icon}}.png" alt="battery-icon">
-			<p id="battery_time_left">{{ battery.time_left }}</p>
+			<p id="battery-percent">{{ top_header.battery.percent }}%</p>
+			<img id="battery-level-img" src="../static/img/battery-{{top_header.battery.battery_icon}}.png" alt="battery-icon">
+			<p id="battery_time_left">{{ top_header.battery.time_left }}</p>
 		</div>
 	</header>
 
 	<section class="container-01">
 
 		<div class="date-block">
-			<h2>{{ date.day_week }}</h2>
-			<p>{{ date.date }}</p>
+			<h2>{{ date_time.day_week }}</h2>
+			<p>{{ date_time.date }}</p>
 		</div>
 
 		<div class="clock-block">
-			<h2 id="clock">{{ time }}</h2>
+			<h2 id="clock"></h2>
 		</div>
 
 		<div class="weather">
 			<section>
 				<div>
 					<p>Weather Forecast</p>
-					<br>
 					<span id="city"></span>
-					<p id="day_week">{{ date.day_week }}</p>
-					<span id="temperature">{{ weather_info['temperature'] }}</span>
+					<p id="day_week">{{ date_time.day_week }}</p>
+					<span id="temperature">{{ weather_info['city'] }}</span>
 					<p>Sunrise: <br>
 						<span id="sunrise_sub">{{ weather_info['sunrise'] }}</span>
 					</p>
@@ -70,11 +69,11 @@
 				</div>
 				<div>
 					<img src="../static/img/{{ weather_info['sky'][0] }}.png" alt="">
-					<p id="sky">{{ weather_info['sky'] }}<br>
-						<span id="sky_sub">{{ weather_info['sky'] }}</span>
+					<p id="sky">{{ weather_info['sky'][0] }}<br>
+						<span id="sky_sub">{{ weather_info['sky'][1] }}</span>
 					</p>
 					<p>Humidity: <br>
-						<span id="humidity_sub">{{ weather_info['humidity'] }}%</span>
+						<span id="humidity_sub">{{ weather_info['humidity'] }}</span>
 					</p>
 					<p>Sunset: <br>
 						<span id="sunset_sub">{{ weather_info['sunset'] }}</span>
@@ -85,16 +84,18 @@
 
 	</section>
 
+
 	<section class="container-02">
 		<section class="sys-info">
 			<!-- Операционная система -->
 			<hr>
 			<h2>OS</h2>
-			<h3 id="os_info">{{ os_info  }}</h3>
+			<h3 id="os_info">{{ system_information.info_os }}</h3>
+			<!-- Процессоры (ядра) -->
 			<hr>
 			<h2>CPU</h2>
 			<ul id="cpu_percent" class="cpu_percent">
-				{% for cpu in cpu_percent %}
+				{% for cpu in system_information.info_cpu %}
 					<div class="progress-bar-container">
 						<div>
 							<span>CPU {{ loop.index }}:</span>
@@ -112,9 +113,9 @@
 			<hr>
 			<h2>RAM</h2>
 			<div>
-				<h3 id="memory_usage">{{ memory.memory_usage }}</h3>
-				<h3 id="total_memory">{{ memory.total_memory }}</h3>
-				<h3 id="memory_percent">{{ memory.memory_percent }}</h3>
+				<h3 id="memory_usage">{{ system_information.info_memory.memory_usage }}</h3>
+				<h3 id="total_memory">{{ system_information.info_memory.total_memory }}</h3>
+				<h3 id="memory_percent">{{ system_information.info_memory.memory_percent }}</h3>
 			</div>
 			<div class="progress-bar-container">
 				<div class="progress-bar">
@@ -124,8 +125,8 @@
 			<hr>
 			<!-- Постоянная память -->
 			<h2>ROM</h2>
-			{% for i in range(disk_info | length) %}
-				<h3>{{ disk_info[i] }}</h3>
+			{% for i in range(system_information.info_disks | length) %}
+				<h3>{{ system_information.info_disks[i]['disk_title'] }}</h3>
 				<div class="progress-bar-container">
 					<div class="progress-bar">
 						<div class="progress-bar-fill" id="disk_{{i}}"></div>
@@ -133,8 +134,6 @@
 					<div class="progress-bar-label"></div>
 				</div>
 			{% endfor %}
-
-			
 		</section>
 
 		<section class="note-block">
@@ -153,6 +152,7 @@
 				<p class="quote-author"></p>
 			</div>
 			<button class="quote-button" id="get-quote-btn">The following quote</button>
+			<a href="/manage-quotes" class="button-redirect" id="manage-quote-btn">Manage the quote</a>
 		</section>
 
 	</section>

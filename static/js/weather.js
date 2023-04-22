@@ -44,7 +44,7 @@ function formatDateString(dateStr) {
     } else if (diffMin === 1) {
         return 'минуту назад';
     } else if (diffMin < 60) {
-        return `${diffMin} минут назад`;
+        return `${diffMin} мин назад`;
     } else if (diffHours < 24) {
         return `${diffHours} ${declOfNum(diffHours, ['час', 'часа', 'часов'])} назад`;
     } else if (diffDays === 1) {
@@ -87,4 +87,4 @@ function getWeather() {
 }
 
 getWeather();
-setInterval(getWeather, 10000);
+setInterval(getWeather, 30000);

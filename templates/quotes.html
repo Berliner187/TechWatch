@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Управление цитатами</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Управление цитатами</h1>
+
+    <h2>Список цитат</h2>
+    <ul id="quote-list">
+        {% for quote in quotes %}
+        <li>{{ quote.text }} - {{ quote.author }}<button class="delete-button" data-index="{{ loop.index }}">Удалить</button></li>
+        {% endfor %}
+    </ul>
+
+    <h2>Добавить цитату</h2>
+    <form id="add-quote-form">
+        <label for="quote">Цитата:</label>
+        <input type="text" id="quote" name="quote">
+        <button type="submit">Добавить</button>
+    </form>
+
+    <script>
+        $(document).ready(function() {
+        loadQuotes();
+
+        $('#add-quote-form').submit(function(event) {
+            event.preventDefault();
+            var quote = $('#quote').val();
+            $.ajax({
+                url: '/quotes',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({quote: quote}),
+                success: function(response) {
+                    $('#quote').val('');
+                    loadQuotes();
+                },
+                error: function(error) {
+                    alert(error.responseJSON.error);
+                }
+            });
+        });
+    });
+
+    function loadQuotes() {
+        $.get('/quotes', function(response) {
+            var quoteList = $('#quote-list');
+            quoteList.empty(); // удаление цитат перед загрузкой новых
+            $.each(response, function(index, quote) {
+                var listItem = $('<li></li>').text(quote.text + " - " + quote.author);
+                if (typeof quote === 'string') {
+                    listItem.text(quote);
+                } else {
+                    listItem.text(quote.text + ' - ' + quote.author);
+                }
+                var deleteButton = $('<button>Удалить</button>').click(function() {
+                    deleteQuote(index);
+                });
+                listItem.append(deleteButton);
+                quoteList.append(listItem);
+            });
+        }).fail(function() {
+            alert('Ошибка загрузки цитат');
+        });
+    }
+
+
+    function deleteQuote(index) {
+        $.ajax({
+            url: '/quotes/' + index,
+            type: 'DELETE',
+            success: function(response) {
+                loadQuotes();
+            }
+        });
+    }
+
+</script>
+
+</body>
+</html>

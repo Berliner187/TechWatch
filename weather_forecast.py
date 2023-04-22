@@ -47,8 +47,12 @@ def get_weather(city):
 
         # Данные о погоде в виде списка
         return {
-            "city": city, "temperature": f'{temperature} °C', "sky": cloudiness,
-            "humidity": f'{humidity}%', "sunrise": sunrise, "sunset": sunset
+            "city": city,
+            "temperature": f'{temperature} °C',
+            "sky": cloudiness,
+            "humidity": f'{humidity}%',
+            "sunrise": sunrise,
+            "sunset": sunset
         }
 
     # Получаем текущее время

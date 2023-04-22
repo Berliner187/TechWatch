@@ -6,5 +6,5 @@ function updateClock() {
 	const clock = document.getElementById("clock");
 	clock.innerHTML = timeString;
 }
-
+updateClock();
 setInterval(updateClock, 1000);

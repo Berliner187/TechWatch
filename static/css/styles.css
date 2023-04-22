@@ -144,7 +144,7 @@ header div img {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transform: translateY(2px);
     width: 170px;
-    font-size: 18px;
+    font-size: 16px;
     font-family: 'SF Pro Medium';
 }
   
@@ -313,7 +313,7 @@ header, .container-01 div {
 
 .note-block {
     width: 450px;
-    height: 500px;
+    height: 600px;
     border-radius: 50px;
     padding: 20px;
     box-sizing: border-box;
@@ -375,7 +375,7 @@ ul.notes-list li {
 .deleteNoteButton:hover {
     background-color: rgba(204, 69, 69, .8);
 }
-  
+
 /* Создаем псевдоэлементы для отображения символа крестика */
 .deleteNoteButton::before,
 .deleteNoteButton::after {
@@ -443,11 +443,11 @@ ul.notes-list li::before {
         opacity: 1;
     }
 }
-  
-  
+
+
 .quote-block {
     width: 400px;
-    height: 500px;
+    height: 600px;
     border-radius: 50px;
     padding: 20px;
     box-sizing: border-box;
@@ -468,10 +468,9 @@ ul.notes-list li::before {
     font-size: 24px;
     font-family: 'SF Pro Display';
 }
-  
-.quote-button {
+
+.quote-button, .button-redirect {
     text-align: center;
-    color: #ebebeb;
     border: none;
     padding: 10px 20px;
     border-radius: 30px;
@@ -479,6 +478,17 @@ ul.notes-list li::before {
     transition: background-color 0.3s;
     display: block;
     margin: 0 auto;
+    transition: .25s;
+}
+.quote-button {
+    color: #151515;
+}
+.button-redirect {
+    width: 60%;
+    background-color: #232323;
+    color: #f2f2f2;
+    margin-top: 20px;
+    text-decoration: none;
 }
 
 .quote-author {
@@ -519,7 +529,7 @@ ul.notes-list li::before {
     transition: .25s;
     transition-duration: .25s;
 }
-.quote-button:hover, .note-button:hover, 
+.quote-button:hover, .button-redirect:hover, .note-button:hover, 
 footer a:hover {
     opacity: .5;
 }
@@ -555,6 +565,13 @@ footer p a {
     border-radius: 50px;
     transition: .25s;
     font-size: 24px;
+}
+
+iframe {
+    border-radius: 50px;
+    margin: 0 auto;
+    width: 600px;
+    align-content: center;
 }
 
 
