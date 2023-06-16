@@ -8,7 +8,7 @@ const sunset = document.getElementById('sunset_sub');
 const lastUpdate = document.getElementById('last_update');
 
 $(document).ready(function(){
-    const savedCity = "{{ weather_info[0] }}"; // сохраненный город на бэке
+    const savedCity = city; // сохраненный город на бэке
 
     if (savedCity) { // Проверяем, есть ли сохраненный город на бэке
     const cityDiv = $('#city');
@@ -87,4 +87,4 @@ function getWeather() {
 }
 
 getWeather();
-setInterval(getWeather, 30000);
+setInterval(getWeather, 10000);

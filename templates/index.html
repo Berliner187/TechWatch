@@ -3,44 +3,14 @@
 <head>
 	<title>Tech Watch</title>
 	<meta charset="UTF-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="shortcut icon" href="../static/img/tw.png" type="image/png">
+	<link rel="shortcut icon" href="../static/img/favicon.png" type="image/png">
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<style>
-	
-</style>
 <body>
 
-	<header>
-		<!-- Костыль -->
-		<button id="colorButton"></button>
-		<div>
-			<div class="icon">
-				<img src="../static/img/setting.png" alt="">
-			</div> <!-- Иконка для раскрытия блока -->
-			<div class="color-buttons">
-				<div class="color-button">
-				  <div class="color-button-dropdown">
-					{% for color, hex in colors.items() %}
-						<button data-color="{{ hex }}" style="background-color: {{hex}}">{{ color }}</button>
-					{% endfor %}
-				  </div>
-				</div>
-			</div>
-			<p>{{ top_header.hostname }}</p>
-		</div>
-		<div>
-			<h2>{{ top_header.greeting }}</h2>
-		</div>
-		<div>
-			<p id="battery-percent">{{ top_header.battery.percent }}%</p>
-			<img id="battery-level-img" src="../static/img/battery-{{top_header.battery.battery_icon}}.png" alt="battery-icon">
-			<p id="battery_time_left">{{ top_header.battery.time_left }}</p>
-		</div>
-	</header>
+	{% include 'header.html' %}
 
 	<section class="container-01">
 
@@ -157,13 +127,57 @@
 
 	</section>
 
-	<footer>
-        <a target="_blank" href="https://berliner187.github.io" class="footer-developer">KOZAK • DEVELOPER ↗</a>
-		<p><a href="https://github.com/Berliner187/TechWatch">Tech Watch</a>, 2023</p>
-		<p>Version: {{ current_version }}</p>
-    </footer>
+	<section class="container-02">
+		<section class="currency-container">
+			<div class="cur-last-update">
+				<p>Last update:</p>
+				<span id="currency_last_update">{{currency_last_update}}</span>
+			</div>
+			{% for currency_info in currency_info %}
+				<div class="cur-pub">
+					<div class="cur-vertical">
+						<p>{{ currency_info['Currency Name'] }}</p>
+						<div class="cur-horizontal">
+							<img src="../static/img/{{ currency_info['Country code'] }}.png" alt="{{ currency_info['Country code'] }}">
+							<span>{{ currency_info['Course'] }}</span>
+							<span class="triangle {% if currency_info['Delta'][0] == '+' %}up{% elif currency_info['Delta'][0] == '-' %}down{% endif %}"></span>
+							<p style="color: {% if currency_info['Delta'][0] == '+' %}#4AE776{% elif currency_info['Delta'][0] == '-' %}#E74A53{% endif %};">{{ currency_info['Delta'] }}</p>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		</section>
+	</section>
+
+	{% include 'footer.html' %}
 
 </body>
+
+<script>
+	$(document).ready(function() {
+		// Функция для выполнения AJAX-запроса и обновления значения span
+		function updateLastUpdate() {
+			$.ajax({
+				url: "/currency",
+				type: "GET",
+				success: function(response) {
+					// Обновление значения span
+					$("span#currency_last_update").text(response);
+				},
+				error: function(xhr, status, error) {
+					// Обработка ошибки запроса
+					console.error("AJAX request error:", error);
+				}
+			});
+		}
+	
+		// Выполнение первичного запроса при загрузке страницы
+		updateLastUpdate();
+	
+		// Установка интервала обновления в 30 секунд
+		setInterval(updateLastUpdate, 30000);
+	});
+</script>
 
 <script src="../static/js/colors-bg.js"></script>
 <script src="../static/js/weather.js"></script>

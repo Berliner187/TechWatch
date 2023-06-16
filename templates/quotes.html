@@ -1,40 +1,65 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Управление цитатами</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>TechWatch — Manage Quotes</title>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="shortcut icon" href="../static/img/favicon.png" type="image/png">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/manage-quotes.css') }}">
 </head>
 <body>
-    <h1>Управление цитатами</h1>
+    {% include 'header.html' %}
 
-    <h2>Список цитат</h2>
-    <ul id="quote-list">
-        {% for quote in quotes %}
-        <li>{{ quote.text }} - {{ quote.author }}<button class="delete-button" data-index="{{ loop.index }}">Удалить</button></li>
-        {% endfor %}
-    </ul>
+    <section class="manage-quotes">
+        <a href="/" class="button-back">< Назад</a>
 
-    <h2>Добавить цитату</h2>
-    <form id="add-quote-form">
-        <label for="quote">Цитата:</label>
-        <input type="text" id="quote" name="quote">
-        <button type="submit">Добавить</button>
-    </form>
+        <h1>Manage Quotes</h1>
+
+        <div class="add-quote-form">
+            <p>Добавить цитату</p>
+            <form id="add-quote-form" action="/add_quote" method="POST">
+                <input placeholder="Цитата" type="text" id="text" name="text" class="quote-button">
+                <input placeholder="Автор" type="text" id="author" name="author" class="quote-button">
+                <button type="submit" class="quote-button">Добавить</button>
+            </form>
+        </div>
+
+        <ul id="quote-list">
+            {% for quote in quotes %}
+            <div class="quote">
+                <div class="quote-text">{{ quote.text }}</div>
+                <div class="quote-author">{{ quote.author }}</div>
+                <div class="quote-delete">
+                    <button onclick="deleteQuote('{{ loop.index }}')"></button>
+                </div>
+            </div>
+            {% endfor %}
+        </ul>
+        
+    </section>
+
+    {% include 'footer.html' %}
 
     <script>
+
         $(document).ready(function() {
         loadQuotes();
 
         $('#add-quote-form').submit(function(event) {
             event.preventDefault();
-            var quote = $('#quote').val();
+            var text = '«' + $('#text').val() + '»';
+            var author = $('#author').val();
             $.ajax({
                 url: '/quotes',
                 type: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({quote: quote}),
+                data: JSON.stringify({text: text, author: author}),
                 success: function(response) {
-                    $('#quote').val('');
+                    $('#text').val('');
+                    $('#author').val('');
                     loadQuotes();
                 },
                 error: function(error) {
@@ -42,32 +67,32 @@
                 }
             });
         });
-    });
+        });
 
-    function loadQuotes() {
+        function loadQuotes() {
         $.get('/quotes', function(response) {
             var quoteList = $('#quote-list');
-            quoteList.empty(); // удаление цитат перед загрузкой новых
+            quoteList.empty();
             $.each(response, function(index, quote) {
-                var listItem = $('<li></li>').text(quote.text + " - " + quote.author);
-                if (typeof quote === 'string') {
-                    listItem.text(quote);
-                } else {
-                    listItem.text(quote.text + ' - ' + quote.author);
-                }
-                var deleteButton = $('<button>Удалить</button>').click(function() {
-                    deleteQuote(index);
-                });
-                listItem.append(deleteButton);
-                quoteList.append(listItem);
+            var quoteItem = $('<div class="quote"></div>');
+            var quoteText = $('<div class="quote-text"></div>').text(quote.text);
+            var quoteAuthor = $('<div class="quote-author"></div>').text('— ' + quote.author);
+            var quoteDelete = $('<div class="quote-delete"></div>');
+            var deleteButton = $('<button></button>').click(function() {
+                deleteQuote(index);
+            });
+            quoteDelete.append(deleteButton);
+            quoteItem.append(quoteText);
+            quoteItem.append(quoteAuthor);
+            quoteItem.append(quoteDelete);
+            quoteList.append(quoteItem);
             });
         }).fail(function() {
             alert('Ошибка загрузки цитат');
         });
-    }
+        }
 
-
-    function deleteQuote(index) {
+        function deleteQuote(index) {
         $.ajax({
             url: '/quotes/' + index,
             type: 'DELETE',
@@ -76,8 +101,10 @@
             }
         });
     }
-
 </script>
+
+<script src="../static/js/colors-bg.js"></script>
+<script src="../static/js/battery.js"></script>
 
 </body>
 </html>

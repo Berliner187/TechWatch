@@ -5,30 +5,7 @@ const diskCLabel = document.getElementById("diskCLabel");
 const diskDBar = document.getElementById("diskDBar");
 const diskDLabel = document.getElementById("diskDLabel");
 
-function paintProgreessBar(bar, percentUsed) {
-    if (percentUsed < 10) {
-            bar.style.backgroundColor = "#6BC1FF";
-        } else if (percentUsed >= 10 && percentUsed < 20) {
-            bar.style.backgroundColor = "#6BFFE3";
-        } else if (percentUsed >= 20 && percentUsed < 30) {
-            bar.style.backgroundColor = "#6BFF9C";
-        } else if (percentUsed >= 30 && percentUsed < 40) {
-            bar.style.backgroundColor = "#7EFF6B";
-        } else if (percentUsed >= 40 && percentUsed < 50) {
-            bar.style.backgroundColor = "#D1FF6B";
-        } else if (percentUsed >= 50 && percentUsed < 60) {
-            bar.style.backgroundColor = "#FFF86B";
-        } else if (percentUsed >= 60 && percentUsed < 70) {
-            bar.style.backgroundColor = "#FFE36B";
-        } else if (percentUsed >= 70 && percentUsed < 80) {
-            bar.style.backgroundColor = "#FFC46B";
-        } else if (percentUsed >= 80 && percentUsed < 90) {
-            bar.style.backgroundColor = "#FFA06E";
-        } else {
-            bar.style.backgroundColor = "#FF6E6E";
-        }
-}
-function paintProgressDisks(progressBar, percentageFree) {
+function paintProgreessBar(progressBar, percentageFree) {
     if (percentageFree >= 90) {
         progressBar.classList.add('danger');
         progressBar.classList.remove('warning');
@@ -83,7 +60,7 @@ function updateDisksProgressBar() {
                 const freeSpace = diskData.free_size;
                 const percentageFree = 100 - Math.round((freeSpace / totalSpace) * 100);
                 diskBar.style.width = percentageFree + "%";
-                paintProgressDisks(diskBar, percentageFree);
+                paintProgreessBar(diskBar, percentageFree);
             }
         })
 
@@ -104,10 +81,10 @@ function updateCpuPercent() {
     .catch(error => console.error('Ошибка при получении значений процентного использования CPU:', error));
 }
 
-updateMemoryProgressBar();
-updateDisksProgressBar();
-updateCpuPercent();
+setTimeout(updateCpuPercent(), 2000);
+setTimeout(updateMemoryProgressBar(), 2000);
+setTimeout(updateDisksProgressBar(), 2000);
 
+setInterval(updateCpuPercent, 500);
 setInterval(updateMemoryProgressBar, 1000);
 setInterval(updateDisksProgressBar, 10000);
-setInterval(updateCpuPercent, 500);

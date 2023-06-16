@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, make_response, session
+from flask import Flask, render_template, jsonify, request, make_response, session, redirect
 from datetime import datetime
 import platform
 import os
@@ -11,6 +11,7 @@ import json
 
 import quotes_obs
 import weather_forecast
+import modules.currency as currency_obs
 
 import modules.customization as customization
 import modules.top_header as top_header
@@ -29,7 +30,7 @@ def generate_secret_key():
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'Dn8dbs8182DSBH8s'
+app.config['SECRET_KEY'] = generate_secret_key()
 
 
 notes = []
@@ -107,39 +108,6 @@ def disk_space():
     return disks_array
 
 
-def get_battery_indicators():
-    # Аккумулятор
-    battery = psutil.sensors_battery()
-    plugged = battery.power_plugged
-    percent = battery.percent
-
-    if plugged:
-        battery_status = 'charge'
-    else:
-        battery_status = 'pass'
-
-    if 5 < percent <= 20:
-        battery_level = 1
-    elif 20 < percent <= 50:
-        battery_level = 2
-    elif 50 < percent <= 70:
-        battery_level = 3
-    elif 70 < percent <= 90:
-        battery_level = 4
-    elif 90 < percent <= 100:
-        battery_level = 5
-    else:
-        battery_level = 0
-
-    battery_indicators = {
-        "battery_icon": f'{battery_status}-{battery_level}',
-        "percent": percent,
-        "time_left": get_battery_time_left()
-    }
-
-    return battery_indicators
-
-
 def get_datetime():
     now = datetime.now()
     _date = now.strftime("%d/%m/%Y")
@@ -164,6 +132,8 @@ def index():
         date_time=get_datetime(),
         system_information=system_information,
         weather_info=weather_forecast.get_weather(city),
+        currency_info=currency_obs.load_currency_info_from_json(),
+        currency_last_update=currency_obs.get_last_parsing_time(),
         colors=customization.themes(),
         current_version=__version__
     )
@@ -172,6 +142,11 @@ def index():
 @app.route
 def date():
     return jsonify()
+
+
+@app.route('/currency')
+def currency_response():
+    return jsonify(currency_obs.get_last_parsing_time())
 
 
 @app.route('/weather')
@@ -189,13 +164,13 @@ def disks_info_response():
 
 @app.route('/cpu_percent')
 def get_cpu_percent_response():
-    cpu_percent = psutil.cpu_percent(interval=1, percpu=True)
+    cpu_percent = psutil.cpu_percent(interval=0.5, percpu=True)
     return jsonify(cpu_percent=cpu_percent)
 
 
 @app.route('/battery')
 def get_battery_response():
-    return jsonify(get_battery_indicators())
+    return jsonify(top_header.battery())
 
 
 @app.route('/memory-usage')
@@ -222,20 +197,15 @@ def delete_note():
     return jsonify({'result': 'success'})
 
 
-# Получить список цитат
-@app.route('/quotes', methods=['GET'])
-def get_quotes():
-    return jsonify(quotes_obs.quotes)
-
-
-@app.route('/quotes', methods=['POST'])
-def add_quote():
-    data = request.get_json()
-    quote = data.get('quote')
-    if not quote:
-        return jsonify({'error': 'Цитата не может быть пустой'}), 400
-    quotes_obs.quotes.append(quote)
-    return jsonify({'message': 'Цитата добавлена'}), 201
+@app.route('/quotes', methods=['GET', 'POST'])
+def quotes():
+    if request.method == 'POST':
+        request_data = request.get_json()
+        quote = {'text': request_data['text'], 'author': request_data['author']}
+        quotes_obs.quotes.append(quote)
+        return jsonify(quotes_obs.quotes)
+    else:
+        return jsonify(quotes_obs.quotes)
 
 
 # Удалить цитату
@@ -250,30 +220,35 @@ def delete_quote(index_q):
 
 @app.route('/quote')
 def quote_resp():
+    # Костыль, который убирает ошибку в JS
+    session.permanent = True
+    app.config.update(
+        SESSION_COOKIE_SECURE=True,
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE='None',
+    )
+
     selected_quotes = session.get('selected_quotes', [])
-    _quotes = [quote for quote in quotes_obs.quotes if quote not in selected_quotes]
-    if not _quotes:
-        selected_quotes.clear()
-        _quotes = quotes_obs.quotes
-    random_quote = random.choice(_quotes)
-    selected_quotes.append(random_quote)
+    _quotes = quotes_obs.quotes.copy()
+    if not selected_quotes:
+        selected_quotes = _quotes
+    random_quote = random.choice(selected_quotes)
+    selected_quotes.remove(random_quote)
+    if not selected_quotes:
+        selected_quotes = _quotes
     session['selected_quotes'] = selected_quotes
     return jsonify(random_quote)
 
 
-@app.route('/quotes', methods=['GET', 'POST'])
-def quotes():
-    if request.method == 'POST':
-        quote = request.json['quote']
-        quotes_obs.quotes.append(quote)
-        return jsonify({'message': 'Цитата успешно добавлена!'})
-    else:
-        return jsonify(quotes_obs.quotes)
-
-
 @app.route('/manage-quotes')
 def manage_quotes():
-    return render_template('quotes.html', quotes=quotes_obs.quotes)
+    return render_template(
+        'quotes.html',
+        top_header=top_header.header_controller(),
+        quotes=quotes_obs.quotes,
+        colors=customization.themes(),
+        current_version=__version__
+    )
 
 
 if __name__ == '__main__':

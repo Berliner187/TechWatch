@@ -1,5 +1,3 @@
-
-
 // Функция для установки значения cookie
 function setCookie(name, value, days) {
     var expires = "";

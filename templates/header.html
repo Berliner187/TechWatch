@@ -1,0 +1,27 @@
+<header>
+    <!-- Костыль -->
+    <button id="colorButton"></button>
+    <div>
+        <div class="icon">
+            <img src="../static/img/change-accent-color-btn.png" alt="">
+        </div> <!-- Иконка для раскрытия блока -->
+        <div class="color-buttons">
+            <div class="color-button">
+              <div class="color-button-dropdown">
+                {% for color, hex in colors.items() %}
+                    <button data-color="{{ hex }}" style="background-color: {{hex}}">{{ color }}</button>
+                {% endfor %}
+              </div>
+            </div>
+        </div>
+        <p>{{ top_header.hostname }}</p>
+    </div>
+    <div>
+        <h2>{{ top_header.greeting }}</h2>
+    </div>
+    <div>
+        <p id="battery-percent">{{ top_header.battery.percent }}%</p>
+        <img id="battery-level-img" src="../static/img/battery-{{top_header.battery.battery_icon}}.png" alt="battery-icon">
+        <p id="battery_time_left">{{ top_header.battery.time_left }}</p>
+    </div>
+</header>
